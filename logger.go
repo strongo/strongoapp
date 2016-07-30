@@ -1,4 +1,4 @@
-package app
+package strongo
 
 type Logger interface {
 	Debugf(format string, args ...interface{})
