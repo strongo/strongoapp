@@ -1,5 +1,7 @@
 package strongo
 
+import "fmt"
+
 const (
 	LOCALE_EN_US = "en-US"
 	LOCALE_RU_RU = "ru-RU"
@@ -28,3 +30,12 @@ var LocaleItIt = Locale{Code5: LOCALE_IT_IT, NativeTitle: "Italiano", EnglishTit
 var LocalePtPt = Locale{Code5: LOCALE_PT_PT, NativeTitle: "Português (PT)", EnglishTitle: "Portuguese (PT)", FlagIcon: "🇵🇹"}
 var LocalePtBr = Locale{Code5: LOCALE_PT_BR, NativeTitle: "Português (BR)", EnglishTitle: "Portuguese (BR)", FlagIcon: "🇧🇷"}
 var LocaleFaIr = Locale{Code5: LOCALE_FA_IR, IsRtl: true, NativeTitle: "فارسی", EnglishTitle: "Persian", FlagIcon: "🇮🇷"}
+
+func GetLocaleByCode5(code5 string) Locale {
+	switch code5 {
+	case LOCALE_EN_US: return LocaleEnUs
+	case LOCALE_RU_RU: return LocaleRuRu
+	default:
+		panic(fmt.Sprintf("Unknown locale: %v", code5))
+	}
+}
