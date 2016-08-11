@@ -16,6 +16,36 @@ type SingleLocaleTranslator interface {
 	TranslateNoWarning(key string, args ...interface{}) string
 }
 
+type SingleLocaleTranslatorWithBackup struct {
+	PrimaryTranslator SingleLocaleTranslator
+	BackupTranslator SingleLocaleTranslator
+}
+
+func NewSingleLocaleTranslatorWithBackup(primary, backup SingleLocaleTranslator) SingleLocaleTranslatorWithBackup {
+	return SingleLocaleTranslatorWithBackup{PrimaryTranslator: primary, BackupTranslator: backup}
+}
+
+func (t SingleLocaleTranslatorWithBackup) Locale() Locale {
+	return t.PrimaryTranslator.Locale()
+}
+
+func (t SingleLocaleTranslatorWithBackup) Translate(key string, args ...interface{}) string {
+	result := t.PrimaryTranslator.Translate(key, args...)
+	if result == key {
+		result = t.BackupTranslator.Translate(key, args...)
+	}
+	return result
+}
+
+func (t SingleLocaleTranslatorWithBackup) TranslateNoWarning(key string, args ...interface{}) string {
+	result := t.PrimaryTranslator.TranslateNoWarning(key, args...)
+	if result == key {
+		result = t.BackupTranslator.TranslateNoWarning(key, args...)
+	}
+	return result
+}
+
+
 type LocalesProvider interface {
 	GetLocaleByCode5(code5 string) (Locale, error)
 }
@@ -30,8 +60,8 @@ type Locale struct {
 
 func (l Locale) SiteCode() string {
 	s := strings.ToLower(l.Code5)
-	if s[:2] == s[3:] {
-		return s[:2]
+	if s1 := s[:2]; s1 == s[3:] || s1 == "en" || s1 == "fa" {
+		return s1
 	}
 	return s
 }
