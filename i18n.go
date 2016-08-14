@@ -60,7 +60,7 @@ type Locale struct {
 
 func (l Locale) SiteCode() string {
 	s := strings.ToLower(l.Code5)
-	if s1 := s[:2]; s1 == s[3:] || s1 == "en" || s1 == "fa" {
+	if s1 := s[:2]; s1 == s[3:] || s1 == "en" || s1 == "fa" || s1 == "ja" || s1 == "zh" {
 		return s1
 	}
 	return s
