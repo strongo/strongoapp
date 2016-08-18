@@ -1,10 +1,14 @@
 package strongo
 
-import "reflect"
+import (
+	"reflect"
+	"golang.org/x/net/context"
+)
 
 type ExecutionContext interface {
 	SingleLocaleTranslator
 	Logger() Logger
+	Context() context.Context
 }
 
 type AppContext interface {
@@ -16,16 +20,22 @@ type AppContext interface {
 }
 
 type executionContext struct {
+	c context.Context
 	SingleLocaleTranslator
 	logger Logger
 }
 
-func (c executionContext) Logger() Logger {
-	return c.logger
+func (ec executionContext) Logger() Logger {
+	return ec.logger
 }
 
-func NewExecutionContext(translator SingleLocaleTranslator, logger Logger) ExecutionContext {
+func (ec executionContext) Context() context.Context {
+	return ec.c
+}
+
+func NewExecutionContext(c context.Context, translator SingleLocaleTranslator, logger Logger) ExecutionContext {
 	return executionContext{
+		c: c,
 		SingleLocaleTranslator: translator,
 		logger: logger,
 	}
