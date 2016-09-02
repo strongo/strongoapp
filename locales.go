@@ -64,5 +64,5 @@ func GetLocaleByCode5(code5 string) Locale {
 	if locale, ok := LocalesByCode5[code5]; ok {
 		return locale
 	}
-	panic(fmt.Sprintf("Unknown locale: %v", code5))
+	panic(fmt.Sprintf("Unknown locale: [%v]", code5))
 }
