@@ -1,8 +1,8 @@
 package strongo
 
 import (
-	"reflect"
 	"golang.org/x/net/context"
+	"reflect"
 )
 
 type ExecutionContext interface {
@@ -37,6 +37,6 @@ func NewExecutionContext(c context.Context, translator SingleLocaleTranslator, l
 	return executionContext{
 		c: c,
 		SingleLocaleTranslator: translator,
-		logger: logger,
+		logger:                 logger,
 	}
 }

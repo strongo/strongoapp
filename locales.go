@@ -27,6 +27,7 @@ const (
 //"6. Italian \xF0\x9F\x87\xAE\xF0\x9F\x87\xB9",
 
 var LocaleEnUS = Locale{Code5: LOCALE_EN_US, NativeTitle: "English", EnglishTitle: "English", FlagIcon: "🇺🇸"}
+
 //var LocaleEnUK = Locale{Code5: LOCALE_EN_UK, NativeTitle: "English", EnglishTitle: "English", FlagIcon: "🇺🇸"}
 var LocaleRuRu = Locale{Code5: LOCALE_RU_RU, NativeTitle: "Русский", EnglishTitle: "Russian", FlagIcon: "🇷🇺"}
 var LocaleIdId = Locale{Code5: LOCALE_ID_ID, NativeTitle: "Indonesian", EnglishTitle: "Indonesian", FlagIcon: ""}
@@ -42,7 +43,7 @@ var LocaleKoKo = Locale{Code5: LOCALE_KO_KO, NativeTitle: "한국어/조선말",
 var LocaleJaJp = Locale{Code5: LOCALE_JA_JP, NativeTitle: "日本語", EnglishTitle: "Japanese", FlagIcon: ""}
 var LocaleZhCn = Locale{Code5: LOCALE_ZH_CN, NativeTitle: "中文", EnglishTitle: "Japanese", FlagIcon: ""}
 
-var LocalesByCode5 = map[string]Locale {
+var LocalesByCode5 = map[string]Locale{
 	LOCALE_EN_US: LocaleEnUS,
 	//LOCALE_EN_UK: LocaleEnUK,
 	LOCALE_RU_RU: LocaleRuRu,

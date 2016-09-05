@@ -1,8 +1,8 @@
 package strongo
 
 import (
-	"testing"
 	"github.com/strongo/app"
+	"testing"
 )
 
 func TestLocale_String(t *testing.T) {

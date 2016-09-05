@@ -26,7 +26,6 @@ func (t theSingleLocaleTranslator) Locale() Locale {
 	return t.locale
 }
 
-
 func (t theSingleLocaleTranslator) TranslateNoWarning(key string, args ...interface{}) string {
 	return t.Translator.TranslateNoWarning(key, t.locale.Code5, args...)
 }

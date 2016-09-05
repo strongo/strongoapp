@@ -18,7 +18,7 @@ type SingleLocaleTranslator interface {
 
 type SingleLocaleTranslatorWithBackup struct {
 	PrimaryTranslator SingleLocaleTranslator
-	BackupTranslator SingleLocaleTranslator
+	BackupTranslator  SingleLocaleTranslator
 }
 
 func NewSingleLocaleTranslatorWithBackup(primary, backup SingleLocaleTranslator) SingleLocaleTranslatorWithBackup {
@@ -44,7 +44,6 @@ func (t SingleLocaleTranslatorWithBackup) TranslateNoWarning(key string, args ..
 	}
 	return result
 }
-
 
 type LocalesProvider interface {
 	GetLocaleByCode5(code5 string) (Locale, error)
