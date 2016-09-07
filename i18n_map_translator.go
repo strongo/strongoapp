@@ -2,15 +2,19 @@ package strongo
 
 import (
 	"fmt"
+	"html/template"
+	"strings"
+	"bytes"
 )
 
 type mapTranslator struct {
 	translations map[string]map[string]string
+	templatesByLocale map[string]*template.Template
 	logger       Logger
 }
 
 func NewMapTranslator(translations map[string]map[string]string, logger Logger) Translator {
-	return mapTranslator{translations: translations, logger: logger}
+	return mapTranslator{translations: translations, logger: logger, templatesByLocale: make(map[string]*template.Template)}
 }
 
 type theSingleLocaleTranslator struct {
@@ -47,6 +51,30 @@ func (t mapTranslator) _translate(warn bool, key, locale string, args ...interfa
 		}
 		s = key
 	} else if len(args) > 0 {
+		if len(args) == 1 && strings.Contains(s, "}}") && (strings.Contains(s, "{{.") || strings.Contains(s, "{{ .")) {
+			tk := locale + key
+			tmpl, ok := t.templatesByLocale[tk]
+			//if key == "INLINE_RECEIPT_MESSAGE" {
+			//	panic(fmt.Sprintf("DEBUG: ok=%v, tk=%v", ok, tk))
+			//}
+			if !ok {
+				var err error
+				if tmpl, err = template.New(key).Parse(s); err != nil {
+					panic(fmt.Sprintf("Failed to parse template '%v' for locale '%v': %v", key, locale, err.Error()))
+				}
+				t.templatesByLocale[tk] = tmpl
+			}
+			var buffer bytes.Buffer
+			if err := tmpl.Execute(&buffer, args[0]); err != nil {
+				panic(fmt.Sprintf("Failed to render template '%v' for locale '%v': %v", key, locale, err.Error()))
+			} else {
+				return buffer.String()
+			}
+		//} else {
+			//if key == "INLINE_RECEIPT_MESSAGE" {
+			//	panic(fmt.Sprintf("DEBUG: len(args)=%v, {{=%v", len(args), strings.Contains(s, "{{.") || strings.Contains(s, "{{ .")))
+			//}
+		}
 		s = fmt.Sprintf(s, args...)
 	}
 	return s
