@@ -1,16 +1,16 @@
 package strongo
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"strings"
-	"bytes"
 )
 
 type mapTranslator struct {
-	translations map[string]map[string]string
+	translations      map[string]map[string]string
 	templatesByLocale map[string]*template.Template
-	logger       Logger
+	logger            Logger
 }
 
 func NewMapTranslator(translations map[string]map[string]string, logger Logger) Translator {
@@ -70,7 +70,7 @@ func (t mapTranslator) _translate(warn bool, key, locale string, args ...interfa
 			} else {
 				return buffer.String()
 			}
-		//} else {
+			//} else {
 			//if key == "INLINE_RECEIPT_MESSAGE" {
 			//	panic(fmt.Sprintf("DEBUG: len(args)=%v, {{=%v", len(args), strings.Contains(s, "{{.") || strings.Contains(s, "{{ .")))
 			//}
