@@ -1,9 +1,11 @@
 package strongo
 
+import "golang.org/x/net/context"
+
 type Logger interface {
-	Debugf(format string, args ...interface{})
-	Infof(format string, args ...interface{})
-	Warningf(format string, args ...interface{})
-	Errorf(format string, args ...interface{})
-	Criticalf(format string, args ...interface{})
+	Debugf(c context.Context, format string, args ...interface{})
+	Infof(c context.Context, format string, args ...interface{})
+	Warningf(c context.Context, format string, args ...interface{})
+	Errorf(c context.Context, format string, args ...interface{})
+	Criticalf(c context.Context, format string, args ...interface{})
 }

@@ -15,7 +15,7 @@ type AppContext interface {
 	AppUserEntityKind() string
 	AppUserEntityType() reflect.Type
 	NewAppUserEntity() AppUser
-	GetTranslator(l Logger) Translator
+	GetTranslator(c context.Context, l Logger) Translator
 	SupportedLocales() LocalesProvider
 }
 
