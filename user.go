@@ -5,4 +5,5 @@ type AppUser interface {
 	PreferredLocale() string
 
 	SetNames(firs, last, user string)
+	GetCurrencies() []string
 }
