@@ -6,17 +6,17 @@ import (
 	"golang.org/x/net/context"
 	"html/template"
 	"strings"
+	"github.com/strongo/app/log"
 )
 
 type mapTranslator struct {
 	c                 context.Context
 	translations      map[string]map[string]string
 	templatesByLocale map[string]*template.Template
-	logger            Logger
 }
 
-func NewMapTranslator(c context.Context, translations map[string]map[string]string, logger Logger) Translator {
-	return mapTranslator{c: c, translations: translations, logger: logger, templatesByLocale: make(map[string]*template.Template)}
+func NewMapTranslator(c context.Context, translations map[string]map[string]string) Translator {
+	return mapTranslator{c: c, translations: translations, templatesByLocale: make(map[string]*template.Template)}
 }
 
 type theSingleLocaleTranslator struct {
@@ -49,7 +49,7 @@ func (t mapTranslator) _translate(warn bool, key, locale string, args ...interfa
 	s, found := t.translations[key][locale]
 	if !found {
 		if warn {
-			t.logger.Warningf(t.c, "Translation not found by key & locale: key=%v&locale=%v", key, locale)
+			log.Warningf(t.c, "Translation not found by key & locale: key=%v&locale=%v", key, locale)
 		}
 		s = key
 	} else if len(args) > 0 {

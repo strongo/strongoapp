@@ -7,7 +7,6 @@ import (
 
 type ExecutionContext interface {
 	SingleLocaleTranslator
-	Logger() Logger
 	Context() context.Context
 }
 
@@ -15,28 +14,22 @@ type AppContext interface {
 	AppUserEntityKind() string
 	AppUserEntityType() reflect.Type
 	NewAppUserEntity() AppUser
-	GetTranslator(c context.Context, l Logger) Translator
+	GetTranslator(c context.Context) Translator
 	SupportedLocales() LocalesProvider
 }
 
 type executionContext struct {
 	c context.Context
 	SingleLocaleTranslator
-	logger Logger
-}
-
-func (ec executionContext) Logger() Logger {
-	return ec.logger
 }
 
 func (ec executionContext) Context() context.Context {
 	return ec.c
 }
 
-func NewExecutionContext(c context.Context, translator SingleLocaleTranslator, logger Logger) ExecutionContext {
+func NewExecutionContext(c context.Context, translator SingleLocaleTranslator) ExecutionContext {
 	return executionContext{
 		c: c,
 		SingleLocaleTranslator: translator,
-		logger:                 logger,
 	}
 }
