@@ -19,7 +19,7 @@ func AddLogger(logger Logger) {
 			panic("Duplicate logger name: " + logger.Name())
 		}
 	}
-	_loggers = append(_loggers)
+	_loggers = append(_loggers, logger)
 }
 
 func Debugf(c context.Context, format string, args ...interface{}) {
