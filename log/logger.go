@@ -1,6 +1,9 @@
 package log
 
-import "golang.org/x/net/context"
+import (
+	"golang.org/x/net/context"
+	"fmt"
+)
 
 type Logger interface {
 	Name() string
@@ -13,10 +16,15 @@ type Logger interface {
 
 var _loggers []Logger
 
+func NumberOfLoggers() int {
+	return len(_loggers)
+}
+
 func AddLogger(logger Logger) {
+	name := logger.Name()
 	for _, l := range _loggers {
-		if l.Name() == logger.Name() {
-			panic("Duplicate logger name: " + logger.Name())
+		if l.Name() == name {
+			panic(fmt.Sprintf("Duplicate logger name: [%v], len(_loggers): %d", name, len(_loggers)))
 		}
 	}
 	_loggers = append(_loggers, logger)
