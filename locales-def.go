@@ -3,6 +3,7 @@ package strongo
 import "fmt"
 
 const (
+	LOCALE_UNDEFINED = "UNDEFINED"
 	LOCALE_EN_US = "en-US"
 	LOCALE_EN_UK = "en-UK"
 	LOCALE_RU_RU = "ru-RU"
@@ -26,22 +27,23 @@ const (
 //"5. Spanish ",
 //"6. Italian \xF0\x9F\x87\xAE\xF0\x9F\x87\xB9",
 
+var LocaleUndefined = Locale{Code5: LOCALE_UNDEFINED, NativeTitle: "Undefined", EnglishTitle: "Undefined"}
 var LocaleEnUS = Locale{Code5: LOCALE_EN_US, NativeTitle: "English", EnglishTitle: "English", FlagIcon: "🇺🇸"}
 
 //var LocaleEnUK = Locale{Code5: LOCALE_EN_UK, NativeTitle: "English", EnglishTitle: "English", FlagIcon: "🇺🇸"}
 var LocaleRuRu = Locale{Code5: LOCALE_RU_RU, NativeTitle: "Русский", EnglishTitle: "Russian", FlagIcon: "🇷🇺"}
 var LocaleIdId = Locale{Code5: LOCALE_ID_ID, NativeTitle: "Indonesian", EnglishTitle: "Indonesian", FlagIcon: ""}
-var LocaleDeDe = Locale{Code5: LOCALE_DE_DE, NativeTitle: "Deutsche", EnglishTitle: "German", FlagIcon: ""}
-var LocaleEsEs = Locale{Code5: LOCALE_ES_ES, NativeTitle: "Español", EnglishTitle: "Spanish", FlagIcon: ""}
-var LocaleFrFr = Locale{Code5: LOCALE_FR_FR, NativeTitle: "Français", EnglishTitle: "France", FlagIcon: ""}
-var LocaleItIt = Locale{Code5: LOCALE_IT_IT, NativeTitle: "Italiano", EnglishTitle: "Italian", FlagIcon: "\xF0\x9F\x87\xAE\xF0\x9F\x87\xB9"}
-var LocalePlPl = Locale{Code5: LOCALE_PL_PL, NativeTitle: "Polszczyzna", EnglishTitle: "Polish", FlagIcon: ""}
-var LocalePtPt = Locale{Code5: LOCALE_PT_PT, NativeTitle: "Português (PT)", EnglishTitle: "Portuguese (PT)", FlagIcon: ""}
-var LocalePtBr = Locale{Code5: LOCALE_PT_BR, NativeTitle: "Português (BR)", EnglishTitle: "Portuguese (BR)", FlagIcon: ""}
-var LocaleFaIr = Locale{Code5: LOCALE_FA_IR, IsRtl: true, NativeTitle: "فارسی", EnglishTitle: "Farsi", FlagIcon: ""}
-var LocaleKoKo = Locale{Code5: LOCALE_KO_KO, NativeTitle: "한국어/조선말", EnglishTitle: "Korean", FlagIcon: ""}
-var LocaleJaJp = Locale{Code5: LOCALE_JA_JP, NativeTitle: "日本語", EnglishTitle: "Japanese", FlagIcon: ""}
-var LocaleZhCn = Locale{Code5: LOCALE_ZH_CN, NativeTitle: "中文", EnglishTitle: "Japanese", FlagIcon: ""}
+var LocaleDeDe = Locale{Code5: LOCALE_DE_DE, NativeTitle: "Deutsche", EnglishTitle: "German", FlagIcon: "🇩🇪"}
+var LocaleEsEs = Locale{Code5: LOCALE_ES_ES, NativeTitle: "Español", EnglishTitle: "Spanish", FlagIcon: "🇪🇸"}
+var LocaleFrFr = Locale{Code5: LOCALE_FR_FR, NativeTitle: "Français", EnglishTitle: "French", FlagIcon: "🇫🇷"}
+var LocaleItIt = Locale{Code5: LOCALE_IT_IT, NativeTitle: "Italiano", EnglishTitle: "Italian", FlagIcon: "🇮🇹"}
+var LocalePlPl = Locale{Code5: LOCALE_PL_PL, NativeTitle: "Polszczyzna", EnglishTitle: "Polish", FlagIcon: "🇵🇱"}
+var LocalePtPt = Locale{Code5: LOCALE_PT_PT, NativeTitle: "Português (PT)", EnglishTitle: "Portuguese (PT)", FlagIcon: "🇵🇹"}
+var LocalePtBr = Locale{Code5: LOCALE_PT_BR, NativeTitle: "Português (BR)", EnglishTitle: "Portuguese (BR)", FlagIcon: "🇧🇷"}
+var LocaleFaIr = Locale{Code5: LOCALE_FA_IR, IsRtl: true, NativeTitle: "فارسی", EnglishTitle: "Farsi", FlagIcon: "🇮🇷"}
+var LocaleKoKo = Locale{Code5: LOCALE_KO_KO, NativeTitle: "한국어/조선말", EnglishTitle: "Korean", FlagIcon: "🇰🇷"}
+var LocaleJaJp = Locale{Code5: LOCALE_JA_JP, NativeTitle: "日本語", EnglishTitle: "Japanese", FlagIcon: "🇯🇵"}
+var LocaleZhCn = Locale{Code5: LOCALE_ZH_CN, NativeTitle: "中文", EnglishTitle: "Chinese", FlagIcon: "🇨🇳"}
 
 var LocalesByCode5 = map[string]Locale{
 	LOCALE_EN_US: LocaleEnUS,

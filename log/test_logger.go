@@ -21,9 +21,13 @@ type LogMessage struct {
 }
 
 type TestLogger struct {
+	name string
 	Messages []LogMessage
 }
 
+func (logger *TestLogger) Name() string {
+	return logger.name
+}
 func (logger *TestLogger) add(level LogLevel, format string, args ...interface{}) {
 	logger.Messages = append(logger.Messages, LogMessage{Level: level, Format: format, Args: args})
 }

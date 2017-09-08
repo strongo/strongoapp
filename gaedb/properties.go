@@ -13,33 +13,55 @@ func IsObsolete(_ datastore.Property) bool {
 	return true
 }
 
+func IsDuplicate(_ datastore.Property) bool {
+	return true
+}
+
 func IsFalse(p datastore.Property) bool {
-	return !p.Value.(bool)
+	return p.Value == nil || !p.Value.(bool)
 }
 
 func IsZeroInt(p datastore.Property) bool {
-	return p.Value.(int64) == 0
+	return p.Value == nil || p.Value.(int64) == 0
+}
+
+func IsZeroBool(p datastore.Property) bool {
+	return p.Value == nil || !p.Value.(bool)
 }
 
 func IsZeroFloat(p datastore.Property) bool {
-	return p.Value.(float64) == 0
+	return p.Value == nil || p.Value.(float64) == 0
 }
 
 func IsZeroTime(p datastore.Property) bool {
-	return p.Value.(time.Time).IsZero()
+	return p.Value == nil || p.Value.(time.Time).IsZero()
 }
 
 func IsEmptyString(p datastore.Property) bool {
-	return p.Value.(string) == ""
+	return p.Value == nil || p.Value.(string) == ""  // TODO: Do we need to check for nil?
+}
+
+func IsEmptyJson(p datastore.Property) bool {
+	if p.Value == nil {
+		return true
+	}
+	v := p.Value.(string)
+	return v == "" || v == "{}" || v == "[]"
 }
 
 func IsEmptyByteArray(p datastore.Property) bool {
+	if p.Value == nil {
+		return true
+	}
 	v := p.Value.([]uint8)
 	return  v == nil || len(v) == 0
 }
 
 func IsEmptyStringOrSpecificValue(v string) func(p datastore.Property) bool {
 	return func(p datastore.Property) bool {
+		if p.Value == nil {
+			return true
+		}
 		s := p.Value.(string)
 		return s == "" || s == v
 	}
