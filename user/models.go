@@ -225,3 +225,11 @@ func (ua *Accounts) GetAccount(provider, app string) (userAccount *Account, err 
 	return
 }
 
+type LastLogin struct {
+	DtLastLogin time.Time
+}
+
+func (l *LastLogin) SetLastLogin(time time.Time) {
+	l.DtLastLogin = time
+}
+

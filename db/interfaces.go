@@ -22,8 +22,12 @@ type MultiGetter interface {
 
 type RunOptions map[string]interface{}
 
+type TransactionCoordinator interface {
+	RunInTransaction(c context.Context, f func(c context.Context) error, options RunOptions) error
+}
+
 type Database interface {
+	TransactionCoordinator
 	MultiGetter
 	MultiUpdater
-	RunInTransaction(c context.Context, f func(c context.Context) error, options RunOptions) error
 }
