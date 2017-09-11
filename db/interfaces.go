@@ -31,3 +31,8 @@ type Database interface {
 	MultiGetter
 	MultiUpdater
 }
+
+var (
+	CrossGroupTransaction     = RunOptions{"XG": true}
+	SingleGroupTransaction    = RunOptions{}
+)
