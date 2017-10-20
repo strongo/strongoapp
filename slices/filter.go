@@ -29,3 +29,12 @@ func FilterStrings(source, remove []string) (result []string, changed bool) {
 	}
 	return
 }
+
+func IsInStringSlice(v string, s []string) bool {
+	for _, sv := range s {
+		if sv == v {
+			return true
+		}
+	}
+	return false
+}

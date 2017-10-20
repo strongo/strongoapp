@@ -8,27 +8,92 @@ import (
 	"github.com/strongo/app/db"
 )
 
-type database struct {
+type gaeDatabase struct {
 }
 
 func NewDatabase() db.Database {
-	return database{}
+	return gaeDatabase{}
 }
 
-func (_ database) UpdateMulti(c context.Context, entityHolders []db.EntityHolder) (err error) { // TODO: Rename to PutMulti?
+func newErrNotFound(err error, key *datastore.Key) error {
+	if intID := key.IntID(); intID != 0 {
+		return db.NewErrNotFoundByIntID(key.Kind(), intID, err)
+	} else if strID := key.StringID(); strID != "" {
+		return db.NewErrNotFoundByStrID(key.Kind(), strID, err)
+	} else {
+		panic("Wrong key")
+	}
+}
+
+func (_ gaeDatabase) Get(c context.Context, entityHolder db.EntityHolder) (err error) {
+	key, isIncomplete, err := getEntityHolderKey(c, entityHolder)
+	if err != nil  {
+		return
+	}
+	if isIncomplete {
+		panic("can't get entity by incomplete key")
+	}
+	if err = Get(c, key, entityHolder); err != nil {
+		if err == datastore.ErrNoSuchEntity {
+			err = newErrNotFound(err, key)
+		}
+		entityHolder.SetEntity(nil)
+	}
+	return
+}
+
+func (_ gaeDatabase) Update(c context.Context, entityHolder db.EntityHolder) (err error) {
+	entity := entityHolder.Entity()
+
+	if entity == nil {
+		panic("entityHolder.Entity() == nil")
+	}
+
+	key, isIncomplete, err := getEntityHolderKey(c, entityHolder)
+	if err != nil  {
+		return
+	}
+	if key, err = Put(c, key, entity); err != nil {
+		return
+	}
+	if isIncomplete {
+		setEntityHolderID(key, entityHolder)
+	}
+	return
+}
+
+func setEntityHolderID(key *datastore.Key, entityHolder db.EntityHolder) {
+	entityHolder.SetIntID(key.IntID())
+}
+
+
+var ErrKeyHasBothIds = errors.New("Entity has both string and int ids")
+
+func getEntityHolderKey(c context.Context, entityHolder db.EntityHolder) (key *datastore.Key, isIncomplete bool, err error) {
+	intID := entityHolder.IntID()
+	strID := entityHolder.StrID()
+	if isIncomplete = intID == 0 && strID == ""; isIncomplete {
+		key = NewIncompleteKey(c, entityHolder.Kind(), nil)
+	} else if intID != 0 && strID != "" {
+		err = errors.WithMessage(ErrKeyHasBothIds, fmt.Sprintf("%v(intID=%d, strID=%v)", entityHolder.Kind(), intID, strID))
+		return
+	} else {
+		key = NewKey(c, entityHolder.Kind(), strID, intID, nil)
+	}
+	return
+}
+
+func (_ gaeDatabase) UpdateMulti(c context.Context, entityHolders []db.EntityHolder) (err error) { // TODO: Rename to PutMulti?
 	keys := make([]*datastore.Key, len(entityHolders))
 	vals := make([]interface{}, len(entityHolders))
 	insertedIndexes := make([]int, 0, len(entityHolders))
+
 	for i, entityHolder := range entityHolders {
-		intID := entityHolder.IntID()
-		strID := entityHolder.StrID()
-		if intID == 0 && strID == "" {
-			keys[i] = NewIncompleteKey(c, entityHolder.Kind(), nil)
+		isIncomplete := false
+		if keys[i], isIncomplete, err = getEntityHolderKey(c, entityHolder); err != nil {
+			return
+		} else if isIncomplete {
 			insertedIndexes = append(insertedIndexes, i)
-		} else if intID != 0 && strID != "" {
-			return errors.New(fmt.Sprintf("Entity #%d has both IDs: %v(intID=%d, strID=%v)", i, entityHolder.Kind(), intID, strID))
-		} else {
-			keys[i] = NewKey(c, entityHolder.Kind(), strID, intID, nil)
 		}
 		vals[i] = entityHolder.Entity()
 	}
@@ -36,12 +101,12 @@ func (_ database) UpdateMulti(c context.Context, entityHolders []db.EntityHolder
 		return err
 	}
 	for _, i := range insertedIndexes {
-		entityHolders[i].SetIntID(keys[i].IntID())
+		setEntityHolderID(keys[i], entityHolders[i])
 	}
 	return nil
 }
 
-func (_ database) GetMulti(c context.Context, entityHolders []db.EntityHolder) error {
+func (_ gaeDatabase) GetMulti(c context.Context, entityHolders []db.EntityHolder) error {
 	keys := make([]*datastore.Key, len(entityHolders))
 	vals := make([]interface{}, len(entityHolders))
 	for i, entityHolder := range entityHolders {
@@ -60,10 +125,28 @@ func (_ database) GetMulti(c context.Context, entityHolders []db.EntityHolder) e
 
 var xgTransaction = &datastore.TransactionOptions{XG: true}
 
-func (_ database) RunInTransaction(c context.Context, f func(c context.Context) error, options db.RunOptions) error {
+var isInTransactionFlag = "is in transaction"
+var nonTransactionalContextKey = "non transactional context"
+
+func (_ gaeDatabase) RunInTransaction(c context.Context, f func(c context.Context) error, options db.RunOptions) error {
 	var to *datastore.TransactionOptions
 	if xg, ok := options["XG"]; ok && xg.(bool) == true {
 		to = xgTransaction
 	}
-	return RunInTransaction(c, f, to)
+	tc := context.WithValue(context.WithValue(c, &isInTransactionFlag, true), &nonTransactionalContextKey, c)
+	return RunInTransaction(tc, f, to)
+}
+
+func (_ gaeDatabase) IsInTransaction(c context.Context) bool {
+	if v := c.Value(&isInTransactionFlag); v != nil && v.(bool) {
+		return true
+	}
+	return false
+}
+
+func (_ gaeDatabase) NonTransactionalContext(tc context.Context) (context.Context) {
+	if c := tc.Value(&nonTransactionalContextKey); c != nil {
+		return c.(context.Context)
+	}
+	return tc
 }

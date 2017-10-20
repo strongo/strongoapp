@@ -5,7 +5,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-type ErrDuplicateUser struct { // TODO: Should it be moved out of this package?
+type ErrDuplicateUser struct {
+	// TODO: Should it be moved out of this package to strongo/app/user?
 	SearchCriteria   string
 	DuplicateUserIDs []int64
 }
@@ -15,7 +16,7 @@ func (err ErrDuplicateUser) Error() string {
 }
 
 var (
-	ErrRecordNotFound     = errors.New("Record not found")
+	ErrRecordNotFound = errors.New("Record not found")
 )
 
 func IsNotFound(err error) bool {
@@ -38,9 +39,9 @@ type ErrNotFoundByID interface {
 }
 
 type errNotFoundByID struct {
-	kind  string
 	intID int64
 	strID string
+	kind  string
 	cause error
 }
 
@@ -53,15 +54,15 @@ func (e errNotFoundByID) StrID() string {
 }
 
 func (e errNotFoundByID) ID() interface{} {
-	if e.intID != 0 && e.strID == "" {
-		return e.intID
-	} else if e.strID != "" && e.intID == 0 {
+	if e.intID == 0 {
+		if e.strID == "" {
+			return nil
+		}
 		return e.strID
-	} else if e.intID == 0 && e.strID == "" {
-		return nil
-	} else {
-		panic("e.intID != 0 && e.strID is not empty string")
+	} else if e.strID == "" {
+		return e.intID
 	}
+	panic("intID != 0 && strID is not empty string")
 }
 
 func (e errNotFoundByID) Cause() error {

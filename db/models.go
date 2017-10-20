@@ -2,12 +2,12 @@ package db
 
 type NoStrID struct {}
 
-func (_ NoStrID) StrID() string {
+func (NoStrID) StrID() string {
 	return ""
 }
 
-func (_ *NoStrID) SetStrID(id string) {
-	panic("String ID is not supported, use SetIntID()")
+func (*NoStrID) SetStrID(id string) {
+	panic("String ID is not supported")
 }
 
 type NoIntID struct {}
@@ -17,5 +17,30 @@ func (_ NoIntID) IntID() int64 {
 }
 
 func (_ *NoIntID) SetIntID(id int64) {
-	panic("Integer ID is not supported, use SetStrID()")
+	panic("Integer ID is not supported")
+}
+
+
+type IntegerID struct {
+	ID int64
+}
+
+func (v *IntegerID) SetIntID(id int64) {
+	v.ID = id
+}
+
+func (v IntegerID) IntID() int64 {
+	return v.ID
+}
+
+type StringID struct {
+	ID string
+}
+
+func (v *StringID) SetStrID(id string) {
+	v.ID = id
+}
+
+func (v StringID) StrID() string {
+	return v.ID
 }

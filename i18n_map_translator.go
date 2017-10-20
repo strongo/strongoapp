@@ -11,12 +11,18 @@ import (
 
 type mapTranslator struct {
 	c                 context.Context
+	defaultLocale     string
 	translations      map[string]map[string]string
 	templatesByLocale map[string]*template.Template
 }
 
 func NewMapTranslator(c context.Context, translations map[string]map[string]string) Translator {
-	return mapTranslator{c: c, translations: translations, templatesByLocale: make(map[string]*template.Template)}
+	return mapTranslator{
+		c: c,
+		defaultLocale: "en-US",
+		translations: translations,
+		templatesByLocale: make(map[string]*template.Template),
+	}
 }
 
 type theSingleLocaleTranslator struct {
@@ -51,14 +57,19 @@ func (t mapTranslator) _translate(warn bool, key, locale string, args ...interfa
 		if warn {
 			log.Warningf(t.c, "Translation not found by key & locale: key=%v&locale=%v", key, locale)
 		}
-		s = key
-	} else if len(args) > 0 {
+		if t.defaultLocale != "" {
+			if s, found = t.translations[key]["en-US"]; !found {
+				if warn {
+					log.Errorf(t.c, "Translation not found for default locale: key=%v&locale=%v", key, locale)
+				}
+				return key
+			}
+		}
+	}
+	if len(args) > 0 {
 		if len(args) == 1 && strings.Contains(s, "}}") && (strings.Contains(s, "{{.") || strings.Contains(s, "{{ .")) {
 			tk := locale + key
 			tmpl, ok := t.templatesByLocale[tk]
-			//if key == "INLINE_RECEIPT_MESSAGE" {
-			//	panic(fmt.Sprintf("DEBUG: ok=%v, tk=%v", ok, tk))
-			//}
 			if !ok {
 				var err error
 				if tmpl, err = template.New(key).Parse(s); err != nil {
@@ -72,10 +83,6 @@ func (t mapTranslator) _translate(warn bool, key, locale string, args ...interfa
 			} else {
 				return buffer.String()
 			}
-			//} else {
-			//if key == "INLINE_RECEIPT_MESSAGE" {
-			//	panic(fmt.Sprintf("DEBUG: len(args)=%v, {{=%v", len(args), strings.Contains(s, "{{.") || strings.Contains(s, "{{ .")))
-			//}
 		}
 		s = fmt.Sprintf(s, args...)
 	}

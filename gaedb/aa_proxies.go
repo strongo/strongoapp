@@ -11,6 +11,8 @@ import (
 	"os"
 	"github.com/strongo/app/db"
 	"strconv"
+	"strings"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -25,7 +27,10 @@ var (
 		}
 		if err := nds.RunInTransaction(c, f, opts); err != nil {
 			if LoggingEnabled {
-				log.Debugf(c, "Transaction failed")
+				if strings.Contains(err.Error(),"nested transactions are not supported") {
+					panic(err)
+				}
+				log.Debugf(c, errors.WithMessage(err, "transaction failed").Error())
 			}
 			return err
 		}
@@ -37,28 +42,39 @@ var (
 
 	Put = func(c context.Context, key *datastore.Key, val interface{}) (*datastore.Key, error) {
 		if LoggingEnabled {
-			log.Debugf(c, "gaedb.Put(%v, %v)", key2str(key), val)
+			log.Debugf(c, "nds.Put(%v, %T=%+v)", key2str(key), val, val)
+			if entity, ok := val.(datastore.PropertyLoadSaver); ok {
+				if props, err := entity.Save(); err != nil {
+					return nil, errors.WithMessage(err, "failed to Save() to properties")
+				} else {
+					log.Debugf(c, "properties: %v", props)
+				}
+
+			}
 		}
 		return nds.Put(c, key, val)
 	}
 
 	PutMulti = func(c context.Context, keys []*datastore.Key, vals interface{}) ([]*datastore.Key, error) {
 		if LoggingEnabled {
-			logKeys(c, "gaedb.PutMulti", keys)
+			logKeys(c, "nds.PutMulti", keys)
 		}
 		return nds.PutMulti(c, keys, vals)
 	}
 
 	Get = func(c context.Context, key *datastore.Key, val interface{}) error {
 		if LoggingEnabled {
-			log.Debugf(c, "gaedb.Get(%v)", key2str(key))
+			log.Debugf(c, "nds.Get(%v)", key2str(key))
+		}
+		if key.IntID() == 0 && key.StringID() == "" {
+			panic("key.IntID() == 0 && key.StringID() is empty string")
 		}
 		return nds.Get(c, key, val)
 	}
 
 	GetMulti = func(c context.Context, keys []*datastore.Key, vals interface{}) error {
 		if LoggingEnabled {
-			logKeys(c, "gaedb.GetMulti", keys)
+			logKeys(c, "nds.GetMulti", keys)
 		}
 		return nds.GetMulti(c, keys, vals)
 	}
@@ -72,7 +88,7 @@ var (
 
 	DeleteMulti = func(c context.Context, keys []*datastore.Key) error {
 		if LoggingEnabled {
-			logKeys(c, "gaedb.DeleteMulti", keys)
+			logKeys(c, "nds.DeleteMulti", keys)
 		}
 		return nds.DeleteMulti(c, keys)
 	}
