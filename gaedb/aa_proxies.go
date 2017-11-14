@@ -3,7 +3,7 @@ package gaedb
 import (
 	"bytes"
 	"fmt"
-	"github.com/qedus/nds"
+	"github.com/strongo/nds"
 	"github.com/strongo/app/log"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	LoggingEnabled = true
+	LoggingEnabled = true // TODO: move to Context.WithValue()
 	mockDB           MockDB
 	NewIncompleteKey = datastore.NewIncompleteKey
 	NewKey           = datastore.NewKey
@@ -41,18 +41,34 @@ var (
 	}
 
 	Put = func(c context.Context, key *datastore.Key, val interface{}) (*datastore.Key, error) {
+		var err error
+		isPartialKey := key.Incomplete()
 		if LoggingEnabled {
-			log.Debugf(c, "nds.Put(%v, %T=%+v)", key2str(key), val, val)
+			buf := new(bytes.Buffer)
+			fmt.Fprintf(buf, "nds.Put(%v) => properties:", key2str(key))
 			if entity, ok := val.(datastore.PropertyLoadSaver); ok {
 				if props, err := entity.Save(); err != nil {
 					return nil, errors.WithMessage(err, "failed to Save() to properties")
 				} else {
-					log.Debugf(c, "properties: %v", props)
+					var prevPropName string
+					for _, prop := range props {
+						if prop.Name == prevPropName {
+							fmt.Fprintf(buf, ", %v", prop.Value)
+						} else {
+							fmt.Fprintf(buf, "\n\t%v: %v", prop.Name, prop.Value)
+						}
+						prevPropName = prop.Name
+					}
 				}
-
 			}
+			log.Debugf(c, buf.String())
 		}
-		return nds.Put(c, key, val)
+		if key, err = nds.Put(c, key, val); err != nil {
+			return key, errors.WithMessage(err, "failed to put to db " + key2str(key))
+		} else if LoggingEnabled && isPartialKey {
+			log.Debugf(c, "nds.Put() inserted new record with key: " + key2str(key))
+		}
+		return key, err
 	}
 
 	PutMulti = func(c context.Context, keys []*datastore.Key, vals interface{}) ([]*datastore.Key, error) {
@@ -80,21 +96,21 @@ var (
 	}
 
 	Delete = func(c context.Context, key *datastore.Key) error {
-		if LoggingEnabled {
-			log.Debugf(c, "gaedb.Delete(%v)", key2str(key))
-		}
+		log.Warningf(c, "gaedb.Delete(%v)", key2str(key))
 		return nds.Delete(c, key)
 	}
 
 	DeleteMulti = func(c context.Context, keys []*datastore.Key) error {
-		if LoggingEnabled {
-			logKeys(c, "nds.DeleteMulti", keys)
-		}
+		log.Warningf(c, "Deleting %v entities", len(keys))
+		logKeys(c, "nds.DeleteMulti", keys)
 		return nds.DeleteMulti(c, keys)
 	}
 )
 
 func key2str(key *datastore.Key) string {
+	if key == nil {
+		return "nil"
+	}
 	kind := key.Kind()
 	if intID := key.IntID(); intID != 0 {
 		return kind + ":int=" + strconv.FormatInt(intID, 10)
@@ -109,8 +125,14 @@ func key2str(key *datastore.Key) string {
 func logKeys(c context.Context, f string, keys []*datastore.Key) {
 	var buffer bytes.Buffer
 	buffer.WriteString(f + "(\n")
+	prevKey := "-"
 	for _, key := range keys {
-		buffer.WriteString(fmt.Sprintf("\t%v\n", key2str(key)))
+		ks := key2str(key)
+		if ks == prevKey {
+			log.Errorf(c, "Duplicate keys: " + ks)
+		}
+		buffer.WriteString(fmt.Sprintf("\t%v\n", ks))
+		prevKey = ks
 	}
 	buffer.WriteString(")")
 	log.Debugf(c, buffer.String())

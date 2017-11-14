@@ -38,3 +38,12 @@ func IsInStringSlice(v string, s []string) bool {
 	}
 	return false
 }
+
+func IsInInt64Slice(v int64, s []int64) bool {
+	for _, sv := range s {
+		if sv == v {
+			return true
+		}
+	}
+	return false
+}

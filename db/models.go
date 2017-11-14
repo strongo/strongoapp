@@ -23,7 +23,17 @@ func (_ *NoIntID) SetIntID(id int64) {
 
 type IntegerID struct {
 	ID int64
+	NoStrID
 }
+
+func NewIntID(id int64) IntegerID {
+	return IntegerID{ID: id}
+}
+
+func (v IntegerID) TypeOfID() TypeOfID {
+	return IsIntID
+}
+
 
 func (v *IntegerID) SetIntID(id int64) {
 	v.ID = id
@@ -34,6 +44,7 @@ func (v IntegerID) IntID() int64 {
 }
 
 type StringID struct {
+	NoIntID
 	ID string
 }
 
@@ -43,4 +54,8 @@ func (v *StringID) SetStrID(id string) {
 
 func (v StringID) StrID() string {
 	return v.ID
+}
+
+func (v StringID) TypeOfID() TypeOfID {
+	return IsStringID
 }

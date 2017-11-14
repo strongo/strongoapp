@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/appengine/datastore"
 	"github.com/strongo/app/db"
+	"github.com/strongo/app/log"
 )
 
 type gaeDatabase struct {
@@ -42,24 +43,43 @@ func (_ gaeDatabase) Get(c context.Context, entityHolder db.EntityHolder) (err e
 	return
 }
 
-func (_ gaeDatabase) Update(c context.Context, entityHolder db.EntityHolder) (err error) {
+func (_ gaeDatabase) InsertWithRandomIntID(c context.Context, entityHolder db.EntityHolder) (err error) {
 	entity := entityHolder.Entity()
 
 	if entity == nil {
 		panic("entityHolder.Entity() == nil")
 	}
 
+	wrapErr := func(err error) error {
+		return errors.WithMessage(err, "failed to create record with random int ID for: " + entityHolder.Kind())
+	}
+
 	key, isIncomplete, err := getEntityHolderKey(c, entityHolder)
 	if err != nil  {
-		return
+		return wrapErr(err)
+	} else if !isIncomplete {
+		panic(fmt.Sprintf("gaeDatabase.InsertWithRandomIntID() called for key with ID: %v", key))
 	}
+
 	if key, err = Put(c, key, entity); err != nil {
-		return
+		return wrapErr(err)
 	}
-	if isIncomplete {
-		setEntityHolderID(key, entityHolder)
-	}
+	setEntityHolderID(key, entityHolder)
 	return
+}
+
+func (db gaeDatabase) Update(c context.Context, entityHolder db.EntityHolder) (error) {
+	if entity := entityHolder.Entity(); entity == nil {
+		panic("entityHolder.Entity() == nil")
+	} else if key, isIncomplete, err := getEntityHolderKey(c, entityHolder); err != nil  {
+		return err
+	} else if isIncomplete {
+		log.Errorf(c, "gaeDatabase.Update() called for incomplete key, will insert.")
+		return db.InsertWithRandomIntID(c, entityHolder)
+	} else if _, err = Put(c, key, entity); err != nil {
+		return errors.WithMessage(err, "failed to update " + key2str(key))
+	}
+	return nil
 }
 
 func setEntityHolderID(key *datastore.Key, entityHolder db.EntityHolder) {
@@ -95,15 +115,21 @@ func (_ gaeDatabase) UpdateMulti(c context.Context, entityHolders []db.EntityHol
 		} else if isIncomplete {
 			insertedIndexes = append(insertedIndexes, i)
 		}
-		vals[i] = entityHolder.Entity()
+		if vals[i] = entityHolder.Entity(); vals[i] == nil {
+			return fmt.Errorf("entityHolders[%d].Entity() == nil", i)
+		}
 	}
+
+	//logKeys(c, "gaeDatabase.UpdateMulti", keys)
+
 	if keys, err = PutMulti(c, keys, vals); err != nil {
-		return err
+		return
 	}
+
 	for _, i := range insertedIndexes {
 		setEntityHolderID(keys[i], entityHolders[i])
 	}
-	return nil
+	return
 }
 
 func (_ gaeDatabase) GetMulti(c context.Context, entityHolders []db.EntityHolder) error {

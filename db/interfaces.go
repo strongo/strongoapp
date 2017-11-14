@@ -6,12 +6,21 @@ import (
 	"math/rand"
 )
 
+type TypeOfID int
+
+const (
+	IsComplexID = iota
+	IsStringID
+	IsIntID
+)
+
 type EntityHolder interface {
+	TypeOfID() TypeOfID
 	Kind() string
+	Entity() interface{}
+	SetEntity(entity interface{})
 	IntID() int64
 	StrID() string
-	Entity() interface{}
-	SetEntity(interface{})
 	SetIntID(id int64)
 	SetStrID(id string)
 }
@@ -28,6 +37,10 @@ type Getter interface {
 	Get(c context.Context, entityHolder EntityHolder) error
 }
 
+type Inserter interface {
+	InsertWithRandomIntID(c context.Context, entityHolder EntityHolder) error
+}
+
 type Updater interface {
 	Update(c context.Context, entityHolder EntityHolder) error
 }
@@ -37,11 +50,12 @@ type RunOptions map[string]interface{}
 type TransactionCoordinator interface {
 	RunInTransaction(c context.Context, f func(c context.Context) error, options RunOptions) (err error)
 	IsInTransaction(c context.Context) bool
-	NonTransactionalContext(tc context.Context) context.Context
+	NonTransactionalContext(tc context.Context) (c context.Context)
 }
 
 type Database interface {
 	TransactionCoordinator
+	Inserter
 	Getter
 	Updater
 	MultiGetter
