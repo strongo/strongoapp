@@ -87,18 +87,22 @@ func setEntityHolderID(key *datastore.Key, entityHolder db.EntityHolder) {
 }
 
 
-var ErrKeyHasBothIds = errors.New("Entity has both string and int ids")
+var ErrKeyHasBothIds = errors.New("entity has both string and int ids")
+var ErrEmptyKind = errors.New("entity holder returned empty kind")
 
 func getEntityHolderKey(c context.Context, entityHolder db.EntityHolder) (key *datastore.Key, isIncomplete bool, err error) {
-	intID := entityHolder.IntID()
-	strID := entityHolder.StrID()
-	if isIncomplete = intID == 0 && strID == ""; isIncomplete {
-		key = NewIncompleteKey(c, entityHolder.Kind(), nil)
-	} else if intID != 0 && strID != "" {
-		err = errors.WithMessage(ErrKeyHasBothIds, fmt.Sprintf("%v(intID=%d, strID=%v)", entityHolder.Kind(), intID, strID))
-		return
+	if kind := entityHolder.Kind(); kind == "" {
+		err = ErrEmptyKind
 	} else {
-		key = NewKey(c, entityHolder.Kind(), strID, intID, nil)
+		intID := entityHolder.IntID()
+		strID := entityHolder.StrID()
+		if isIncomplete = intID == 0 && strID == ""; isIncomplete {
+			key = NewIncompleteKey(c, kind, nil)
+		} else if intID != 0 || strID != "" {
+			key = NewKey(c, kind, strID, intID, nil)
+		} else {
+			err = errors.WithMessage(ErrKeyHasBothIds, fmt.Sprintf("%v(intID=%d, strID=%v)", kind, intID, strID))
+		}
 	}
 	return
 }
@@ -109,6 +113,9 @@ func (_ gaeDatabase) UpdateMulti(c context.Context, entityHolders []db.EntityHol
 	insertedIndexes := make([]int, 0, len(entityHolders))
 
 	for i, entityHolder := range entityHolders {
+		if entityHolder == nil {
+			panic(fmt.Sprintf("entityHolders[%v] is nil: %v", i, entityHolder))
+		}
 		isIncomplete := false
 		if keys[i], isIncomplete, err = getEntityHolderKey(c, entityHolder); err != nil {
 			return

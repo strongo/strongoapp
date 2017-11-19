@@ -3,7 +3,7 @@ package gaedb
 import (
 	"bytes"
 	"fmt"
-	"github.com/strongo/nds"
+	//"github.com/strongo/nds"
 	"github.com/strongo/app/log"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
@@ -21,16 +21,42 @@ var (
 	NewIncompleteKey = datastore.NewIncompleteKey
 	NewKey           = datastore.NewKey
 
+	dbRunInTransaction = datastore.RunInTransaction
+	dbGet = datastore.Get
+	dbGetMulti = datastore.GetMulti
+	dbPut = datastore.Put
+	dbPutMulti = datastore.PutMulti
+	dbDelete = datastore.Delete
+	dbDeleteMulti = datastore.DeleteMulti
+
 	RunInTransaction = func (c context.Context, f func(tc context.Context) error, opts *datastore.TransactionOptions) error {
 		if LoggingEnabled {
-			log.Debugf(c, "Starting transaction...")
+			if opts == nil {
+				log.Debugf(c, "gaedb.RunInTransaction(): starting transaction, opts=nil...")
+			} else {
+				log.Debugf(c, "gaedb.RunInTransaction(): starting transaction, opts=%+v...", *opts)
+			}
 		}
-		if err := nds.RunInTransaction(c, f, opts); err != nil {
+		attempt := 0
+		fWrapped := func(c context.Context) (err error) {
+			attempt += 1
+			log.Debugf(c, "tx attempt #%d", attempt)
+			if err = f(c); err != nil {
+				const m = "tx attempt #%d failed: "
+				if err == datastore.ErrConcurrentTransaction {
+					log.Warningf(c, m + err.Error())
+				} else {
+					log.Errorf(c, m + err.Error())
+				}
+			}
+			return
+		}
+		if err := dbRunInTransaction(c, fWrapped, opts); err != nil {
 			if LoggingEnabled {
 				if strings.Contains(err.Error(),"nested transactions are not supported") {
 					panic(err)
 				}
-				log.Debugf(c, errors.WithMessage(err, "transaction failed").Error())
+				log.Errorf(c, errors.WithMessage(err, "transaction failed").Error())
 			}
 			return err
 		}
@@ -45,7 +71,7 @@ var (
 		isPartialKey := key.Incomplete()
 		if LoggingEnabled {
 			buf := new(bytes.Buffer)
-			fmt.Fprintf(buf, "nds.Put(%v) => properties:", key2str(key))
+			fmt.Fprintf(buf, "dbPut(%v) => properties:", key2str(key))
 			if entity, ok := val.(datastore.PropertyLoadSaver); ok {
 				if props, err := entity.Save(); err != nil {
 					return nil, errors.WithMessage(err, "failed to Save() to properties")
@@ -63,47 +89,53 @@ var (
 			}
 			log.Debugf(c, buf.String())
 		}
-		if key, err = nds.Put(c, key, val); err != nil {
+		if key, err = dbPut(c, key, val); err != nil {
 			return key, errors.WithMessage(err, "failed to put to db " + key2str(key))
 		} else if LoggingEnabled && isPartialKey {
-			log.Debugf(c, "nds.Put() inserted new record with key: " + key2str(key))
+			log.Debugf(c, "dbPut() inserted new record with key: " + key2str(key))
 		}
 		return key, err
 	}
 
 	PutMulti = func(c context.Context, keys []*datastore.Key, vals interface{}) ([]*datastore.Key, error) {
 		if LoggingEnabled {
-			logKeys(c, "nds.PutMulti", keys)
+			//buf := new(bytes.Buffer)
+			//buf.WriteString("dbPutMulti(")
+			//for i, key := range keys {
+			// Need to use reflection...
+			//}
+			//buf.WriteString(")")
+			logKeys(c, "dbPutMulti", keys)
 		}
-		return nds.PutMulti(c, keys, vals)
+		return dbPutMulti(c, keys, vals)
 	}
 
 	Get = func(c context.Context, key *datastore.Key, val interface{}) error {
 		if LoggingEnabled {
-			log.Debugf(c, "nds.Get(%v)", key2str(key))
+			log.Debugf(c, "dbGet(%v)", key2str(key))
 		}
 		if key.IntID() == 0 && key.StringID() == "" {
 			panic("key.IntID() == 0 && key.StringID() is empty string")
 		}
-		return nds.Get(c, key, val)
+		return dbGet(c, key, val)
 	}
 
 	GetMulti = func(c context.Context, keys []*datastore.Key, vals interface{}) error {
 		if LoggingEnabled {
-			logKeys(c, "nds.GetMulti", keys)
+			logKeys(c, "dbGetMulti", keys)
 		}
-		return nds.GetMulti(c, keys, vals)
+		return dbGetMulti(c, keys, vals)
 	}
 
 	Delete = func(c context.Context, key *datastore.Key) error {
 		log.Warningf(c, "gaedb.Delete(%v)", key2str(key))
-		return nds.Delete(c, key)
+		return dbDelete(c, key)
 	}
 
 	DeleteMulti = func(c context.Context, keys []*datastore.Key) error {
 		log.Warningf(c, "Deleting %v entities", len(keys))
-		logKeys(c, "nds.DeleteMulti", keys)
-		return nds.DeleteMulti(c, keys)
+		logKeys(c, "dbDeleteMulti", keys)
+		return dbDeleteMulti(c, keys)
 	}
 )
 

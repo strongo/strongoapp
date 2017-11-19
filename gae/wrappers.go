@@ -7,6 +7,8 @@ import (
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/taskqueue"
 	"net/url"
+	"github.com/strongo/app/log"
+	"github.com/strongo/app/gaedb"
 )
 
 //TODO: Document why whe need this
@@ -46,5 +48,7 @@ var AddTaskToQueue = func(c context.Context, task *taskqueue.Task, queueName str
 	if queueName == "default" {
 		return nil, errors.New("queueName is 'default'")
 	}
+	isInTransaction := gaedb.NewDatabase().IsInTransaction(c)
+	log.Debugf(c, "Adding task to queue '%v', tx=%v): %+v", queueName, isInTransaction, task)
 	return taskqueue.Add(c, task, queueName)
 }
