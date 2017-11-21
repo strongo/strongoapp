@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/pkg/errors"
+	"github.com/strongo/nds"
 )
 
 var (
@@ -21,13 +22,21 @@ var (
 	NewIncompleteKey = datastore.NewIncompleteKey
 	NewKey           = datastore.NewKey
 
-	dbRunInTransaction = datastore.RunInTransaction
-	dbGet = datastore.Get
+	//dbRunInTransaction = datastore.RunInTransaction
+	//dbGet = datastore.Get
+	//dbGetMulti = datastore.GetMulti
+	//dbPut = datastore.Put
+	//dbPutMulti = datastore.PutMulti
+	//dbDelete = datastore.Delete
+	//dbDeleteMulti = datastore.DeleteMulti
+
+	dbRunInTransaction = nds.RunInTransaction
+	dbGet = nds.Get
 	dbGetMulti = datastore.GetMulti
-	dbPut = datastore.Put
-	dbPutMulti = datastore.PutMulti
-	dbDelete = datastore.Delete
-	dbDeleteMulti = datastore.DeleteMulti
+	dbPut = nds.Put
+	dbPutMulti = nds.PutMulti
+	dbDelete = nds.Delete
+	dbDeleteMulti = nds.DeleteMulti
 
 	RunInTransaction = func (c context.Context, f func(tc context.Context) error, opts *datastore.TransactionOptions) error {
 		if LoggingEnabled {
@@ -42,7 +51,7 @@ var (
 			attempt += 1
 			log.Debugf(c, "tx attempt #%d", attempt)
 			if err = f(c); err != nil {
-				const m = "tx attempt #%d failed: "
+				m := fmt.Sprintf("tx attempt #%d failed: ", attempt)
 				if err == datastore.ErrConcurrentTransaction {
 					log.Warningf(c, m + err.Error())
 				} else {
@@ -67,24 +76,25 @@ var (
 	}
 
 	Put = func(c context.Context, key *datastore.Key, val interface{}) (*datastore.Key, error) {
+		if val == nil {
+			panic("val == nil")
+		}
 		var err error
 		isPartialKey := key.Incomplete()
 		if LoggingEnabled {
 			buf := new(bytes.Buffer)
 			fmt.Fprintf(buf, "dbPut(%v) => properties:", key2str(key))
-			if entity, ok := val.(datastore.PropertyLoadSaver); ok {
-				if props, err := entity.Save(); err != nil {
-					return nil, errors.WithMessage(err, "failed to Save() to properties")
-				} else {
-					var prevPropName string
-					for _, prop := range props {
-						if prop.Name == prevPropName {
-							fmt.Fprintf(buf, ", %v", prop.Value)
-						} else {
-							fmt.Fprintf(buf, "\n\t%v: %v", prop.Name, prop.Value)
-						}
-						prevPropName = prop.Name
+			if props, err := datastore.SaveStruct(val); err != nil {
+				return nil, errors.WithMessage(err, fmt.Sprintf("failed to SaveStruct(%v) to properties", val))
+			} else {
+				var prevPropName string
+				for _, prop := range props {
+					if prop.Name == prevPropName {
+						fmt.Fprintf(buf, ", %v", prop.Value)
+					} else {
+						fmt.Fprintf(buf, "\n\t%v: %v", prop.Name, prop.Value)
 					}
+					prevPropName = prop.Name
 				}
 			}
 			log.Debugf(c, buf.String())

@@ -34,20 +34,26 @@ func (_ gaeDatabase) Get(c context.Context, entityHolder db.EntityHolder) (err e
 	if isIncomplete {
 		panic("can't get entity by incomplete key")
 	}
-	if err = Get(c, key, entityHolder); err != nil {
+	entity := entityHolder.Entity()
+	if err = Get(c, key, entity); err != nil {
 		if err == datastore.ErrNoSuchEntity {
 			err = newErrNotFound(err, key)
 		}
 		entityHolder.SetEntity(nil)
+	} else {
+		entityHolder.SetEntity(entity)
 	}
 	return
 }
 
 func (_ gaeDatabase) InsertWithRandomIntID(c context.Context, entityHolder db.EntityHolder) (err error) {
+	if entityHolder == nil {
+		panic("entityHolder == nil")
+	}
+	log.Debugf(c, "InsertWithRandomIntID(kind=%v)", entityHolder.Kind())
 	entity := entityHolder.Entity()
-
 	if entity == nil {
-		panic("entityHolder.Entity() == nil")
+		panic("entity == nil")
 	}
 
 	wrapErr := func(err error) error {
@@ -69,7 +75,9 @@ func (_ gaeDatabase) InsertWithRandomIntID(c context.Context, entityHolder db.En
 }
 
 func (db gaeDatabase) Update(c context.Context, entityHolder db.EntityHolder) (error) {
-	if entity := entityHolder.Entity(); entity == nil {
+	entity := entityHolder.Entity()
+	log.Debugf(c, "entity: %v", entity)
+	if entity == nil {
 		panic("entityHolder.Entity() == nil")
 	} else if key, isIncomplete, err := getEntityHolderKey(c, entityHolder); err != nil  {
 		return err
@@ -108,8 +116,10 @@ func getEntityHolderKey(c context.Context, entityHolder db.EntityHolder) (key *d
 }
 
 func (_ gaeDatabase) UpdateMulti(c context.Context, entityHolders []db.EntityHolder) (err error) { // TODO: Rename to PutMulti?
+
 	keys := make([]*datastore.Key, len(entityHolders))
 	vals := make([]interface{}, len(entityHolders))
+
 	insertedIndexes := make([]int, 0, len(entityHolders))
 
 	for i, entityHolder := range entityHolders {
@@ -135,6 +145,7 @@ func (_ gaeDatabase) UpdateMulti(c context.Context, entityHolders []db.EntityHol
 
 	for _, i := range insertedIndexes {
 		setEntityHolderID(keys[i], entityHolders[i])
+		entityHolders[i].SetEntity(vals[i]) // it seems useless but covers case when .Entity() returned newly created object without storing inside entityHolder
 	}
 	return
 }
