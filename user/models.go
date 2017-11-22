@@ -3,7 +3,7 @@ package user
 import (
 	"time"
 	"github.com/pkg/errors"
-	"github.com/strongo/app/db"
+	"github.com/strongo/db"
 	"strings"
 	"fmt"
 	"github.com/strongo/app/slices"
@@ -93,7 +93,7 @@ func ParseUserAccount(s string) (ua Account, err error) {
 			ID:       vals[1],
 		}
 	default:
-		err = fmt.Errorf("Invalid Account string, expected 1 or 2 ':' characters, got: %d", strings.Count(s, ":"))
+		err = fmt.Errorf("invalid Account string, expected 1 or 2 ':' characters, got: %d", strings.Count(s, ":"))
 	}
 	return
 }
@@ -110,10 +110,24 @@ func (ua *Accounts) AddAccount(userAccount Account) (changed bool) {
 	// TODO: if !IsKnownUserAccountProvider(userAccount.Provider) {
 	//	panic("Unknown provider: " + userAccount.Provider)
 	//}
-
 	if userAccount.ID == "" || userAccount.ID == "0" {
 		panic(fmt.Sprintf("Invalid userAccount.ID: [%v], userAccount.String: %v", userAccount.ID, userAccount.String()))
+	} else if strings.Contains(userAccount.ID, ":") {
+		panic("ID should not contains the ':' character.")
 	}
+
+	if userAccount.App == "" {
+		panic("User account must have non-empty App field")
+	} else if strings.Contains(userAccount.App, ":") {
+		panic("App name should not contains the ':' character.")
+	}
+
+	if userAccount.Provider == "" {
+		panic("User account must have non-empty Provider field")
+	} else if strings.Contains(userAccount.Provider, ":") {
+		panic("Provider should not contains the ':' character.")
+	}
+
 	account := userAccount.String()
 	for _, a := range ua.Accounts {
 		if a == account {
@@ -164,6 +178,19 @@ func (ua *Accounts) GetTelegramUserIDs() (telegramUserIDs []int64) {
 				panic(err)
 			} else {
 				telegramUserIDs = append(telegramUserIDs, telegramUserID)
+			}
+		}
+	}
+	return
+}
+
+func (ua *Accounts) GetTelegramAccounts() (telegramAccounts []Account) {
+	for _, a := range ua.Accounts {
+		if strings.HasPrefix(a, "telegram:") {
+			if ua, err := ParseUserAccount(a); err != nil {
+				panic(err)
+			} else {
+				telegramAccounts = append(telegramAccounts, ua)
 			}
 		}
 	}

@@ -6,7 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"html/template"
 	"strings"
-	"github.com/strongo/app/log"
+	"github.com/strongo/log"
 )
 
 type mapTranslator struct {

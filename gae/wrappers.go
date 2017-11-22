@@ -7,8 +7,8 @@ import (
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/taskqueue"
 	"net/url"
-	"github.com/strongo/app/log"
-	"github.com/strongo/app/gaedb"
+	"github.com/strongo/log"
+	"github.com/strongo/db/gaedb"
 	"time"
 )
 
