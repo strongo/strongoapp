@@ -3,10 +3,10 @@ package strongo
 import (
 	"bytes"
 	"fmt"
-	"golang.org/x/net/context"
+	"github.com/strongo/log"
+	"context"
 	"html/template"
 	"strings"
-	"github.com/strongo/log"
 )
 
 type mapTranslator struct {
@@ -18,9 +18,9 @@ type mapTranslator struct {
 
 func NewMapTranslator(c context.Context, translations map[string]map[string]string) Translator {
 	return mapTranslator{
-		c: c,
-		defaultLocale: "en-US",
-		translations: translations,
+		c:                 c,
+		defaultLocale:     "en-US",
+		translations:      translations,
 		templatesByLocale: make(map[string]*template.Template),
 	}
 }
@@ -57,10 +57,13 @@ func (t mapTranslator) _translate(warn bool, key, locale string, args ...interfa
 		if warn {
 			log.Warningf(t.c, "Translation not found by key & locale: key=%v&locale=%v", key, locale)
 		}
-		if t.defaultLocale != "" {
-			if s, found = t.translations[key]["en-US"]; !found {
+		if defaultLocale := t.defaultLocale; defaultLocale != locale {
+			if defaultLocale == "" {
+				defaultLocale = "en-US"
+			}
+			if s, found = t.translations[key][defaultLocale]; !found {
 				if warn {
-					log.Errorf(t.c, "Translation not found for default locale: key=%v&locale=%v", key, locale)
+					log.Warningf(t.c, "Translation not found for default locale: key=%v&locale=%v", key, defaultLocale)
 				}
 				return key
 			}

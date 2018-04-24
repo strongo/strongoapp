@@ -3,12 +3,12 @@ package gae
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	"golang.org/x/net/context"
+	"github.com/strongo/db/gaedb"
+	"github.com/strongo/log"
+	"context"
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/taskqueue"
 	"net/url"
-	"github.com/strongo/log"
-	"github.com/strongo/db/gaedb"
 	"time"
 )
 
@@ -26,7 +26,6 @@ var CallDelayFuncWithDelay = func(c context.Context, delay time.Duration, queueN
 		return err
 	}
 }
-
 
 const failToCreateDelayTask = "failed to create delay task"
 const failToCreateDelayTaskPrefix = failToCreateDelayTask + ": "
@@ -53,6 +52,7 @@ func CreateDelayTask(queueName, subPath string, f *delay.Function, args ...inter
 
 const failedToAddTaskToQueue = "faile to add task to queue"
 const failedToAddTaskToQueuePrefix = failedToAddTaskToQueue + ": "
+
 //TODO: Document why whe need this
 var AddTaskToQueue = func(c context.Context, t *taskqueue.Task, queueName string) (task *taskqueue.Task, err error) {
 	if queueName == "" {

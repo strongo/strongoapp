@@ -1,19 +1,19 @@
 package user
 
 import (
-	"time"
-	"github.com/pkg/errors"
-	"github.com/strongo/db"
-	"strings"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/strongo/app/slices"
+	"github.com/strongo/db"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type OwnedByUser struct { // TODO: Move to strongo/app?
 	AppUserIntID int64
 	DtCreated    time.Time
-	DtUpdated    time.Time
+	DtUpdated    time.Time `datastore:",omitempty"`
 }
 
 func (ownedByUser OwnedByUser) Validate() error {
@@ -62,16 +62,16 @@ type AccountRecord interface {
 }
 
 type Names struct {
-	FirstName      string `datastore:",noindex"`
-	LastName       string `datastore:",noindex"`
-	NickName       string `datastore:",noindex"`
+	FirstName string `datastore:",noindex"`
+	LastName  string `datastore:",noindex"`
+	NickName  string `datastore:",noindex"`
 }
 
 func (entity Names) GetNames() Names {
 	return entity
 }
 
-type Account struct {// Global ID of Account
+type Account struct { // Global ID of Account
 	Provider string
 	App      string
 	ID       string
@@ -102,7 +102,7 @@ func (ua Account) String() string {
 	return ua.Provider + ":" + ua.App + ":" + ua.ID
 }
 
-type Accounts struct {// Member of UserEntity class
+type Accounts struct { // Member of UserEntity class
 	Accounts []string `datastore:",noindex"`
 }
 
@@ -117,7 +117,7 @@ func (ua *Accounts) AddAccount(userAccount Account) (changed bool) {
 	}
 
 	if userAccount.App == "" {
-		panic("User account must have non-empty App field")
+		panic(fmt.Sprintf("User account must have non-empty App field, got: %+v", userAccount))
 	} else if strings.Contains(userAccount.App, ":") {
 		panic("App name should not contains the ':' character.")
 	}
@@ -259,4 +259,3 @@ type LastLogin struct {
 func (l *LastLogin) SetLastLogin(time time.Time) {
 	l.DtLastLogin = time
 }
-

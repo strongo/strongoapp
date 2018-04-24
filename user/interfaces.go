@@ -8,5 +8,3 @@ type BelongsToUser interface {
 	SetDtCreated(time time.Time)
 	SetDtUpdated(time time.Time)
 }
-
-

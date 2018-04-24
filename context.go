@@ -1,7 +1,7 @@
 package strongo
 
 import (
-	"golang.org/x/net/context"
+	"context"
 	"reflect"
 )
 

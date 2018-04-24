@@ -4,12 +4,12 @@ import "fmt"
 
 const (
 	LOCALE_UNDEFINED = "UNDEFINED"
-	LOCALE_EN_US = "en-US"
-	LOCALE_EN_UK = "en-UK"
-	LOCALE_RU_RU = "ru-RU"
-	LOCALE_ID_ID = "id-ID"
-	LOCALE_FA_IR = "fa-IR"
-	LOCALE_IT_IT = "it-IT"
+	LOCALE_EN_US     = "en-US"
+	LOCALE_EN_UK     = "en-UK"
+	LOCALE_RU_RU     = "ru-RU"
+	LOCALE_ID_ID     = "id-ID"
+	LOCALE_FA_IR     = "fa-IR"
+	LOCALE_IT_IT     = "it-IT"
 
 	LOCALE_DE_DE = "de-DE"
 	LOCALE_ES_ES = "es-ES"

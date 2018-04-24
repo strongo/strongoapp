@@ -1,6 +1,6 @@
 package slices
 
-func MergeInt64s(source []int64, slices ... []int64) (result []int64, changed bool) {
+func MergeInt64s(source []int64, slices ...[]int64) (result []int64, changed bool) {
 	result = source[:]
 	for _, slice := range slices {
 		for _, v := range slice {
@@ -17,7 +17,7 @@ func MergeInt64s(source []int64, slices ... []int64) (result []int64, changed bo
 	return
 }
 
-func MergeStrings(source []string, slices ... []string) (result []string, changed bool) {
+func MergeStrings(source []string, slices ...[]string) (result []string, changed bool) {
 	result = source[:]
 	for _, slice := range slices {
 		for _, v := range slice {
