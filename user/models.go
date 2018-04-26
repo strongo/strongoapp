@@ -102,7 +102,7 @@ func (ua Account) String() string {
 	return ua.Provider + ":" + ua.App + ":" + ua.ID
 }
 
-type Accounts struct { // Member of UserEntity class
+type Accounts struct { // Member of TgUserEntity class
 	Accounts []string `datastore:",noindex"`
 }
 
