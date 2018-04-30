@@ -2,9 +2,9 @@ package strongo
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"github.com/strongo/log"
-	"context"
 	"html/template"
 	"strings"
 )
@@ -16,6 +16,7 @@ type mapTranslator struct {
 	templatesByLocale map[string]*template.Template
 }
 
+// NewMapTranslator creates new map translator
 func NewMapTranslator(c context.Context, translations map[string]map[string]string) Translator {
 	return mapTranslator{
 		c:                 c,
@@ -44,6 +45,7 @@ func (t theSingleLocaleTranslator) TranslateNoWarning(key string, args ...interf
 
 var _ SingleLocaleTranslator = (*theSingleLocaleTranslator)(nil)
 
+// NewSingleMapTranslator creates new single map translator
 func NewSingleMapTranslator(locale Locale, translator Translator) SingleLocaleTranslator {
 	return theSingleLocaleTranslator{
 		locale:     locale,
