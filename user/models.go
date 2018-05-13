@@ -102,11 +102,11 @@ func (ua Account) String() string {
 	return ua.Provider + ":" + ua.App + ":" + ua.ID
 }
 
-type Accounts struct { // Member of TgUserEntity class
+type AccountsOfUser struct {// Member of TgUserEntity class
 	Accounts []string `datastore:",noindex"`
 }
 
-func (ua *Accounts) AddAccount(userAccount Account) (changed bool) {
+func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
 	// TODO: if !IsKnownUserAccountProvider(userAccount.Provider) {
 	//	panic("Unknown provider: " + userAccount.Provider)
 	//}
@@ -138,7 +138,7 @@ func (ua *Accounts) AddAccount(userAccount Account) (changed bool) {
 	return true
 }
 
-func (ua *Accounts) RemoveAccount(userAccount Account) (changed bool) {
+func (ua *AccountsOfUser) RemoveAccount(userAccount Account) (changed bool) {
 	ua.Accounts, changed = slices.FilterStrings(ua.Accounts, []string{userAccount.String()})
 	return true
 }
@@ -151,7 +151,7 @@ func userAccountPrefix(provider, app string) string {
 	}
 }
 
-func (ua Accounts) HasAccount(provider, app string) bool {
+func (ua AccountsOfUser) HasAccount(provider, app string) bool {
 	p := userAccountPrefix(provider, app)
 	for _, a := range ua.Accounts {
 		if strings.HasPrefix(a, p) {
@@ -161,15 +161,15 @@ func (ua Accounts) HasAccount(provider, app string) bool {
 	return false
 }
 
-func (ua Accounts) HasTelegramAccount() bool {
+func (ua AccountsOfUser) HasTelegramAccount() bool {
 	return ua.HasAccount("telegram", "")
 }
 
-func (ua Accounts) HasGoogleAccount() bool {
+func (ua AccountsOfUser) HasGoogleAccount() bool {
 	return ua.HasAccount("google", "")
 }
 
-func (ua *Accounts) GetTelegramUserIDs() (telegramUserIDs []int64) {
+func (ua *AccountsOfUser) GetTelegramUserIDs() (telegramUserIDs []int64) {
 	for _, a := range ua.Accounts {
 		if strings.HasPrefix(a, "telegram:") {
 			if ua, err := ParseUserAccount(a); err != nil {
@@ -184,7 +184,7 @@ func (ua *Accounts) GetTelegramUserIDs() (telegramUserIDs []int64) {
 	return
 }
 
-func (ua *Accounts) GetTelegramAccounts() (telegramAccounts []Account) {
+func (ua *AccountsOfUser) GetTelegramAccounts() (telegramAccounts []Account) {
 	for _, a := range ua.Accounts {
 		if strings.HasPrefix(a, "telegram:") {
 			if ua, err := ParseUserAccount(a); err != nil {
@@ -197,15 +197,15 @@ func (ua *Accounts) GetTelegramAccounts() (telegramAccounts []Account) {
 	return
 }
 
-func (ua *Accounts) GetGoogleAccount() (userAccount *Account, err error) {
+func (ua *AccountsOfUser) GetGoogleAccount() (userAccount *Account, err error) {
 	return ua.GetAccount("google", "")
 }
 
-func (ua *Accounts) GetFbAccounts() (userAccounts []Account, err error) {
+func (ua *AccountsOfUser) GetFbAccounts() (userAccounts []Account, err error) {
 	return ua.GetAccounts("fb")
 }
 
-func (ua *Accounts) GetAccounts(platform string) (userAccounts []Account, err error) {
+func (ua *AccountsOfUser) GetAccounts(platform string) (userAccounts []Account, err error) {
 	var userAccount Account
 	prefix := platform + ":"
 	for _, a := range ua.Accounts {
@@ -219,18 +219,18 @@ func (ua *Accounts) GetAccounts(platform string) (userAccounts []Account, err er
 	return
 }
 
-func (ua *Accounts) GetFbAccount(app string) (userAccount *Account, err error) {
+func (ua *AccountsOfUser) GetFbAccount(app string) (userAccount *Account, err error) {
 	if app == "" {
 		return nil, errors.New("Parameter app is required")
 	}
 	return ua.GetAccount("fb", app)
 }
 
-func (ua *Accounts) GetFbmAccount(fbPageID string) (userAccount *Account, err error) {
+func (ua *AccountsOfUser) GetFbmAccount(fbPageID string) (userAccount *Account, err error) {
 	return ua.GetAccount("fbm", fbPageID)
 }
 
-func (ua *Accounts) GetAccount(provider, app string) (userAccount *Account, err error) {
+func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *Account, err error) {
 	count := 0
 	prefix := userAccountPrefix(provider, app)
 
