@@ -117,7 +117,9 @@ func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
 	}
 
 	if userAccount.App == "" {
-		panic(fmt.Sprintf("User account must have non-empty App field, got: %+v", userAccount))
+		if userAccount.Provider != "google" {
+			panic(fmt.Sprintf("User account must have non-empty App field, got: %+v", userAccount))
+		}
 	} else if strings.Contains(userAccount.App, ":") {
 		panic("App name should not contains the ':' character.")
 	}
