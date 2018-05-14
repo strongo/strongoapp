@@ -19,8 +19,6 @@ func GetEnvironmentFromHost(host string) strongo.Environment {
 		return strongo.EnvDevTest
 	} else if host == "localhost" || strings.HasPrefix(host, "localhost:") || strings.HasSuffix(host, ".ngrok.io") || strings.Contains(host, "local") {
 		return strongo.EnvLocal
-	} else {
-		return strongo.EnvProduction
 	}
-	return strongo.EnvUnknown
+	return strongo.EnvProduction
 }
