@@ -10,13 +10,31 @@ import (
 	"time"
 )
 
-type OwnedByUser struct { // TODO: Move to strongo/app?
-	AppUserIntID int64
+type ownedByUser struct {
 	DtCreated    time.Time
 	DtUpdated    time.Time `datastore:",omitempty"`
 }
 
-func (ownedByUser OwnedByUser) Validate() error {
+type OwnedByUserWithIntID struct {
+	ownedByUser
+	AppUserIntID int64
+}
+
+func NewOwnedByUserWithIntID(id int64, created time.Time) OwnedByUserWithIntID {
+	return OwnedByUserWithIntID{
+		ownedByUser: ownedByUser{
+			DtCreated: created,
+		},
+	}
+}
+
+var (
+	_ BelongsToUserWithIntID      = (*OwnedByUserWithIntID)(nil)
+	_ CreatedTimesSetter = (*OwnedByUserWithIntID)(nil)
+	_ UpdatedTimeSetter  = (*OwnedByUserWithIntID)(nil)
+)
+
+func (ownedByUser OwnedByUserWithIntID) Validate() error {
 	if ownedByUser.AppUserIntID == 0 {
 		return errors.New("AppUserIntID == 0")
 	}
@@ -31,19 +49,23 @@ func (ownedByUser OwnedByUser) Validate() error {
 	return nil
 }
 
-func (ownedByUser *OwnedByUser) GetAppUserIntID() int64 {
+func (ownedByUser *OwnedByUserWithIntID) GetAppUserID() interface{} {
 	return ownedByUser.AppUserIntID
 }
 
-func (ownedByUser *OwnedByUser) SetAppUserIntID(appUserID int64) {
+func (ownedByUser *OwnedByUserWithIntID) GetAppUserIntID() int64 {
+	return ownedByUser.AppUserIntID
+}
+
+func (ownedByUser *OwnedByUserWithIntID) SetAppUserIntID(appUserID int64) {
 	ownedByUser.AppUserIntID = appUserID
 }
 
-func (ownedByUser *OwnedByUser) SetDtCreated(v time.Time) {
+func (ownedByUser *ownedByUser) SetCreatedTime(v time.Time) {
 	ownedByUser.DtCreated = v
 }
 
-func (ownedByUser *OwnedByUser) SetDtUpdated(v time.Time) {
+func (ownedByUser *ownedByUser) SetUpdatedTime(v time.Time) {
 	ownedByUser.DtUpdated = v
 }
 
@@ -71,7 +93,8 @@ func (entity Names) GetNames() Names {
 	return entity
 }
 
-type Account struct { // Global ID of Account
+type Account struct {
+	// Global ID of Account
 	Provider string
 	App      string
 	ID       string
@@ -102,14 +125,15 @@ func (ua Account) String() string {
 	return ua.Provider + ":" + ua.App + ":" + ua.ID
 }
 
-type AccountsOfUser struct {// Member of TgUserEntity class
+type AccountsOfUser struct {
+	// Member of TgUserEntity class
 	Accounts []string `datastore:",noindex"`
 }
 
 func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
 	// TODO: if !IsKnownUserAccountProvider(userAccount.Provider) {
-	//	panic("Unknown provider: " + userAccount.Provider)
-	//}
+	// 	panic("Unknown provider: " + userAccount.Provider)
+	// }
 	if userAccount.ID == "" || userAccount.ID == "0" {
 		panic(fmt.Sprintf("Invalid userAccount.ID: [%v], userAccount.String: %v", userAccount.ID, userAccount.String()))
 	} else if strings.Contains(userAccount.ID, ":") {
