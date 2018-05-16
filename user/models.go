@@ -3,7 +3,7 @@ package user
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/strongo/app/slices"
+	"github.com/strongo/slices"
 	"github.com/strongo/db"
 	"strconv"
 	"strings"
@@ -168,8 +168,8 @@ func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
 }
 
 func (ua *AccountsOfUser) RemoveAccount(userAccount Account) (changed bool) {
-	ua.Accounts, changed = slices.FilterStrings(ua.Accounts, []string{userAccount.String()})
-	return true
+	ua.Accounts, changed = slices.RemoveStrings(ua.Accounts, []string{userAccount.String()})
+	return
 }
 
 func userAccountPrefix(provider, app string) string {
