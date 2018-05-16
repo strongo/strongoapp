@@ -168,7 +168,9 @@ func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
 }
 
 func (ua *AccountsOfUser) RemoveAccount(userAccount Account) (changed bool) {
-	ua.Accounts, changed = slices.RemoveStrings(ua.Accounts, []string{userAccount.String()})
+	var removeCount int
+	ua.Accounts, removeCount = slices.RemoveStrings(ua.Accounts, []string{userAccount.String()})
+	changed = removeCount != 0
 	return
 }
 
