@@ -11,8 +11,8 @@ import (
 )
 
 type ownedByUser struct {
-	DtCreated    time.Time
-	DtUpdated    time.Time `datastore:",omitempty"`
+	DtCreated time.Time
+	DtUpdated time.Time `datastore:",omitempty"`
 }
 
 type OwnedByUserWithIntID struct {
@@ -29,9 +29,9 @@ func NewOwnedByUserWithIntID(id int64, created time.Time) OwnedByUserWithIntID {
 }
 
 var (
-	_ BelongsToUserWithIntID      = (*OwnedByUserWithIntID)(nil)
-	_ CreatedTimesSetter = (*OwnedByUserWithIntID)(nil)
-	_ UpdatedTimeSetter  = (*OwnedByUserWithIntID)(nil)
+	_ BelongsToUserWithIntID = (*OwnedByUserWithIntID)(nil)
+	_ CreatedTimesSetter     = (*OwnedByUserWithIntID)(nil)
+	_ UpdatedTimeSetter      = (*OwnedByUserWithIntID)(nil)
 )
 
 func (ownedByUser OwnedByUserWithIntID) Validate() error {
@@ -141,7 +141,10 @@ func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
 	}
 
 	if userAccount.App == "" {
-		if userAccount.Provider != "google" {
+		switch userAccount.Provider {
+		case "google", "email": // TODO: abstract this to provider definition
+			// It's OK to have empty app for this providers
+		default:
 			panic(fmt.Sprintf("User account must have non-empty App field, got: %+v", userAccount))
 		}
 	} else if strings.Contains(userAccount.App, ":") {
