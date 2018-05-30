@@ -167,6 +167,15 @@ func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
 	return true
 }
 
+func (ua *AccountsOfUser) SetBotUserID(platform, botID, botUserID string) {
+	ua.AddAccount(Account{
+		Provider: platform,
+		App:      botID,
+		ID:       botUserID,
+	})
+}
+
+
 func (ua *AccountsOfUser) RemoveAccount(userAccount Account) (changed bool) {
 	var removeCount int
 	ua.Accounts, removeCount = slices.RemoveStrings(ua.Accounts, []string{userAccount.String()})

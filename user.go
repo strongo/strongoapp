@@ -1,5 +1,7 @@
 package strongo
 
+import "github.com/strongo/app/user"
+
 // AppUser defines app user interface
 type AppUser interface {
 	SetPreferredLocale(code5 string) error
@@ -11,6 +13,7 @@ type AppUser interface {
 
 // AppUserBase hold common properties for AppUser interface
 type AppUserBase struct {
+	user.AccountsOfUser
 	Locale    string `datastore:",noindex"`
 	FirstName string `datastore:",noindex"`
 	LastName  string `datastore:",noindex"`
