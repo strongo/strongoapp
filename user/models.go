@@ -175,7 +175,6 @@ func (ua *AccountsOfUser) SetBotUserID(platform, botID, botUserID string) {
 	})
 }
 
-
 func (ua *AccountsOfUser) RemoveAccount(userAccount Account) (changed bool) {
 	var removeCount int
 	ua.Accounts, removeCount = slices.RemoveStrings(ua.Accounts, []string{userAccount.String()})
@@ -293,7 +292,7 @@ func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *Account
 }
 
 type LastLogin struct {
-	DtLastLogin time.Time
+	DtLastLogin time.Time `datastore:",omitempty"`
 }
 
 func (l *LastLogin) SetLastLogin(time time.Time) {
