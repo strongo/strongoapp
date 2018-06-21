@@ -1,6 +1,9 @@
 package strongo
 
-import "github.com/strongo/app/user"
+import (
+	"github.com/strongo/app/user"
+	"time"
+)
 
 // AppUser defines app user interface
 type AppUser interface {
@@ -13,6 +16,7 @@ type AppUser interface {
 
 // AppUserBase hold common properties for AppUser interface
 type AppUserBase struct {
+	DtCreated time.Time
 	user.AccountsOfUser
 	Locale    string `datastore:",noindex"`
 	FirstName string `datastore:",noindex"`
