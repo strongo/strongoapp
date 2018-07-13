@@ -24,7 +24,7 @@ type AppUserBase struct {
 	UserName  string `datastore:",noindex"`
 }
 
-func (u *AppUserBase) FullName() string {
+func (u *AppUserBase) GetFullName() string {
 	if u.FirstName != "" && u.LastName != "" {
 		return u.FirstName + " " + u.LastName
 	}
