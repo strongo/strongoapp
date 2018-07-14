@@ -11,6 +11,7 @@ const (
 	LocaleCodeEnUS = "en-US"
 	// LocaleCodeEnUK is locale code
 	LocaleCodeEnUK = "en-UK"
+	LocaleCodeUzUZ = "uz-UZ"
 	// LocalCodeRuRu is locale code
 	LocalCodeRuRu = "ru-RU"
 	// LOCALE_ID_ID     = "id-ID"
@@ -89,6 +90,8 @@ var (
 
 	// LocaleJaJp is locale
 	LocaleJaJp = Locale{Code5: LocaleCodeJaJP, NativeTitle: "日本語", EnglishTitle: "Japanese", FlagIcon: "🇯🇵"}
+
+	LocaleUzUz = Locale{Code5: LocaleCodeUzUZ, NativeTitle: "oʻzbek tili", EnglishTitle: "Uzbek", FlagIcon: "🇨🇳"}
 
 	// LocaleZhCn is locale
 	LocaleZhCn = Locale{Code5: LocaleCodeZhCN, NativeTitle: "中文", EnglishTitle: "Chinese", FlagIcon: "🇨🇳"}
