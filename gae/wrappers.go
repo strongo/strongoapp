@@ -4,19 +4,18 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
-	"github.com/strongo/db/gaedb"
-	"github.com/strongo/log"
 	"google.golang.org/appengine/delay"
 	"google.golang.org/appengine/taskqueue"
 	"net/url"
 	"time"
 )
 
-//TODO: Document why whe need this
+// CallDelayFunc - TODO: Document why whe need this
 var CallDelayFunc = func(c context.Context, queueName, subPath string, f *delay.Function, args ...interface{}) error {
 	return CallDelayFuncWithDelay(c, 0, queueName, subPath, f, args...)
 }
 
+// CallDelayFuncWithDelay - TODO: Document why whe need this
 var CallDelayFuncWithDelay = func(c context.Context, delay time.Duration, queueName, subPath string, f *delay.Function, args ...interface{}) error {
 	if task, err := CreateDelayTask(queueName, subPath, f, args...); err != nil {
 		return err
@@ -30,7 +29,7 @@ var CallDelayFuncWithDelay = func(c context.Context, delay time.Duration, queueN
 const failToCreateDelayTask = "failed to create delay task"
 const failToCreateDelayTaskPrefix = failToCreateDelayTask + ": "
 
-//TODO: Document why whe need this
+// CreateDelayTask creates a delay task TODO: Document why whe need this
 func CreateDelayTask(queueName, subPath string, f *delay.Function, args ...interface{}) (*taskqueue.Task, error) {
 	if queueName == "" {
 		return nil, errors.New(failToCreateDelayTaskPrefix + "queueName is empty")
@@ -50,10 +49,10 @@ func CreateDelayTask(queueName, subPath string, f *delay.Function, args ...inter
 	}
 }
 
-const failedToAddTaskToQueue = "faile to add task to queue"
+const failedToAddTaskToQueue = "failed to add task to queue"
 const failedToAddTaskToQueuePrefix = failedToAddTaskToQueue + ": "
 
-//TODO: Document why whe need this
+// AddTaskToQueue - adds tasks to a queue TODO: Document why whe need this
 var AddTaskToQueue = func(c context.Context, t *taskqueue.Task, queueName string) (task *taskqueue.Task, err error) {
 	if queueName == "" {
 		return nil, errors.New(failedToAddTaskToQueuePrefix + "queueName is empty")
@@ -63,9 +62,9 @@ var AddTaskToQueue = func(c context.Context, t *taskqueue.Task, queueName string
 	}
 	if task, err = taskqueue.Add(c, t, queueName); err != nil {
 		err = errors.WithMessage(err, failedToAddTaskToQueue)
-	} else {
-		isInTransaction := gaedb.NewDatabase().IsInTransaction(c)
-		log.Debugf(c, "Added task to queue '%v', tx=%v): path: %v", queueName, isInTransaction, task.Path)
+		//} else {
+		//	isInTransaction := gaedb.NewDatabase().IsInTransaction(c)
+		//	log.Debugf(c, "Added task to queue '%v', tx=%v): path: %v", queueName, isInTransaction, task.Path)
 	}
 	return
 }

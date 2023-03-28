@@ -1,10 +1,10 @@
 package user
 
 import (
+	"errors"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/strongo/slices"
-	"github.com/strongo/db"
+	"github.com/strongo/dalgo/record"
+	"github.com/strongo/slice"
 	"strconv"
 	"strings"
 	"time"
@@ -77,8 +77,8 @@ type AccountEntity interface {
 }
 
 type AccountRecord interface {
+	record.WithID[string]
 	AccountEntity
-	db.EntityHolder
 	UserAccount() Account
 	GetEmail() string
 }
@@ -175,11 +175,11 @@ func (ua *AccountsOfUser) SetBotUserID(platform, botID, botUserID string) {
 	})
 }
 
+// RemoveAccount removes account from the list of account IDs.
 func (ua *AccountsOfUser) RemoveAccount(userAccount Account) (changed bool) {
-	var removeCount int
-	ua.Accounts, removeCount = slices.RemoveStrings(ua.Accounts, []string{userAccount.String()})
-	changed = removeCount != 0
-	return
+	count := len(ua.Accounts)
+	ua.Accounts = slice.RemoveInPlace(userAccount.String(), ua.Accounts)
+	return len(ua.Accounts) != count
 }
 
 func userAccountPrefix(provider, app string) string {
@@ -190,7 +190,7 @@ func userAccountPrefix(provider, app string) string {
 	}
 }
 
-func (ua AccountsOfUser) HasAccount(provider, app string) bool {
+func (ua *AccountsOfUser) HasAccount(provider, app string) bool {
 	p := userAccountPrefix(provider, app)
 	for _, a := range ua.Accounts {
 		if strings.HasPrefix(a, p) {
@@ -200,11 +200,11 @@ func (ua AccountsOfUser) HasAccount(provider, app string) bool {
 	return false
 }
 
-func (ua AccountsOfUser) HasTelegramAccount() bool {
+func (ua *AccountsOfUser) HasTelegramAccount() bool {
 	return ua.HasAccount("telegram", "")
 }
 
-func (ua AccountsOfUser) HasGoogleAccount() bool {
+func (ua *AccountsOfUser) HasGoogleAccount() bool {
 	return ua.HasAccount("google", "")
 }
 
@@ -269,6 +269,7 @@ func (ua *AccountsOfUser) GetFbmAccount(fbPageID string) (userAccount *Account, 
 	return ua.GetAccount("fbm", fbPageID)
 }
 
+// GetAccount returns the first account of the given provider and app.
 func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *Account, err error) {
 	count := 0
 	prefix := userAccountPrefix(provider, app)
@@ -291,10 +292,12 @@ func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *Account
 	return
 }
 
+// LastLogin is a struct that contains the last login time of a user.
 type LastLogin struct {
 	DtLastLogin time.Time `datastore:",omitempty"`
 }
 
+// SetLastLogin sets the last login time of a user.
 func (l *LastLogin) SetLastLogin(time time.Time) {
 	l.DtLastLogin = time
 }

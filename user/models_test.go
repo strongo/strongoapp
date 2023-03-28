@@ -1,6 +1,9 @@
 package user
 
-import "testing"
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 func TestAccountsOfUser_AddAccount(t *testing.T) {
 	t.Parallel()
@@ -34,15 +37,19 @@ func TestAccountsOfUser_AddAccount(t *testing.T) {
 }
 
 func TestAccountsOfUser_RemoveAccount(t *testing.T) {
-	accounts := AccountsOfUser{}
-	if accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"}) {
-		t.Error("Should return changed=false")
-	}
-	accounts = AccountsOfUser{Accounts: []string{"email:u1@example.com", "u2@example.com", "u3@example.com"}}
-	if accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"}) {
-		t.Error("Should return changed=false")
-	}
-	if !accounts.RemoveAccount(Account{Provider: "email", ID: "u2@example.com"}) {
-		t.Error("Should return changed=true")
-	}
+	t.Run("empty", func(t *testing.T) {
+		accounts := AccountsOfUser{}
+		assert.False(t, accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"}))
+	})
+	t.Run("non_empty", func(t *testing.T) {
+		accounts := AccountsOfUser{
+			Accounts: []string{
+				"email::u1@example.com",
+				"email::u2@example.com",
+				"email::u3@example.com",
+			},
+		}
+		assert.False(t, accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"}))
+		assert.True(t, accounts.RemoveAccount(Account{Provider: "email", ID: "u2@example.com"}))
+	})
 }
