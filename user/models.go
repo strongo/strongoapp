@@ -3,7 +3,7 @@ package user
 import (
 	"errors"
 	"fmt"
-	"github.com/strongo/dalgo/record"
+	"github.com/dal-go/dalgo/record"
 	"github.com/strongo/slice"
 	"strconv"
 	"strings"
