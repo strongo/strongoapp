@@ -3,7 +3,7 @@ package user
 import (
 	"errors"
 	"fmt"
-	"github.com/dal-go/dalgo/record"
+	"github.com/dal-go/dalgo/dal"
 	"github.com/strongo/slice"
 	"strconv"
 	"strings"
@@ -76,8 +76,9 @@ type AccountData interface {
 	GetNames() Names
 }
 
-type AccountRecord[T comparable] interface {
-	record.WithID[T]
+type AccountRecord interface {
+	Key() *dal.Key
+	Record() dal.Record
 	AccountData() AccountData
 	UserAccount() Account
 	GetEmail() string
