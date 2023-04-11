@@ -1,9 +1,9 @@
 package gaestandard
 
 import (
-	"net/http"
-	"google.golang.org/appengine"
 	"github.com/strongo/app"
+	"google.golang.org/appengine/v2"
+	"net/http"
 )
 
 func HandleWithContext(handler strongo.ContextHandler) func(w http.ResponseWriter, r *http.Request) {
