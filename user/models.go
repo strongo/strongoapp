@@ -69,16 +69,16 @@ func (ownedByUser *ownedByUser) SetUpdatedTime(v time.Time) {
 	ownedByUser.DtUpdated = v
 }
 
-type AccountEntity interface {
+type AccountData interface {
 	BelongsToUser
 	SetLastLogin(time time.Time)
 	IsEmailConfirmed() bool
 	GetNames() Names
 }
 
-type AccountRecord interface {
-	record.WithID[string]
-	AccountEntity
+type AccountRecord[T comparable] interface {
+	record.WithID[T]
+	AccountData() AccountData
 	UserAccount() Account
 	GetEmail() string
 }
