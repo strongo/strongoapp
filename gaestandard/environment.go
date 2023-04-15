@@ -3,7 +3,7 @@ package gaestandard
 import (
 	"context"
 	"github.com/strongo/app"
-	"google.golang.org/appengine/v2"
+	"google.golang.org/appengine"
 	"strings"
 )
 

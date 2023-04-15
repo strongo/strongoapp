@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"google.golang.org/appengine/v2/delay"
-	"google.golang.org/appengine/v2/taskqueue"
+	"google.golang.org/appengine/delay"
+	"google.golang.org/appengine/taskqueue"
 	"net/url"
 	"time"
 )
