@@ -3,7 +3,7 @@ module github.com/strongo/app
 go 1.20
 
 require (
-	github.com/dal-go/dalgo v0.2.9
+	github.com/dal-go/dalgo v0.2.15
 	github.com/stretchr/testify v1.8.2
 	github.com/strongo/log v0.0.1
 	github.com/strongo/slice v0.1.2
