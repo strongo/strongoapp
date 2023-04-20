@@ -8,6 +8,7 @@ require (
 	github.com/strongo/log v0.0.1
 	github.com/strongo/slice v0.1.2
 	google.golang.org/appengine v1.6.7
+	google.golang.org/appengine/v2 v2.0.3
 )
 
 require (
