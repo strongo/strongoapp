@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/dal-go/dalgo v0.2.26
 	github.com/stretchr/testify v1.8.2
-	github.com/strongo/log v0.0.1
+	github.com/strongo/log v0.0.2
 	github.com/strongo/slice v0.1.2
 	google.golang.org/appengine v1.6.7
 )
