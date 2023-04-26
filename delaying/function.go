@@ -46,23 +46,40 @@ func (p params) Delay() time.Duration {
 }
 
 type Function interface {
+	Implementation() any
 	EnqueueWork(c context.Context, params Params, args ...interface{}) error
 	EnqueueWorkMulti(c context.Context, params Params, args ...[]interface{}) error
 }
 
 type function struct {
+	implementation   any
 	enqueueWork      func(c context.Context, params Params, args ...interface{}) error
 	enqueueWorkMulti func(c context.Context, params Params, args ...[]interface{}) error
 }
 
 func NewFunction(
+	implementation any,
 	enqueueWork func(c context.Context, params Params, args ...interface{}) error,
 	enqueueWorkMulti func(c context.Context, params Params, args ...[]interface{}) error,
 ) Function {
+	if implementation == nil {
+		panic("implementation is nil")
+	}
+	if enqueueWork == nil {
+		panic("enqueueWork is nil")
+	}
+	if enqueueWorkMulti == nil {
+		panic("enqueueWorkMulti is nil")
+	}
 	return function{
+		implementation:   implementation,
 		enqueueWork:      enqueueWork,
 		enqueueWorkMulti: enqueueWorkMulti,
 	}
+}
+
+func (f function) Implementation() any {
+	return f.implementation
 }
 
 func (f function) EnqueueWork(c context.Context, params Params, args ...interface{}) error {
