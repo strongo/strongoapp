@@ -74,7 +74,7 @@ func TestNewFunction(t *testing.T) {
 		enqueueWorkMulti := func(c context.Context, params Params, args ...[]any) error {
 			panic("unexpected call")
 		}
-		f := NewFunction(func() {}, enqueueWork, enqueueWorkMulti)
+		f := NewFunction("EnqueueWorkTest", func() {}, enqueueWork, enqueueWorkMulti)
 		assert.NotNil(t, f)
 		assert.Nil(t, singleArgs)
 		err := f.EnqueueWork(context.Background(), With("queue1", "path1", 0), 1, 2, 3)
@@ -90,7 +90,7 @@ func TestNewFunction(t *testing.T) {
 			multiArgs = args
 			return nil
 		}
-		f := NewFunction(func() {}, enqueueWork, enqueueWorkMulti)
+		f := NewFunction("EnqueueWorkMultiTest", func() {}, enqueueWork, enqueueWorkMulti)
 		err := f.EnqueueWorkMulti(context.Background(), With("queue1", "path1", 0), []any{1, 2}, []any{3, 4})
 		assert.Nil(t, err)
 		assert.Equal(t, [][]any{{1, 2}, {3, 4}}, multiArgs)
