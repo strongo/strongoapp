@@ -1,20 +1,63 @@
 package delaying
 
-import "context"
+import (
+	"context"
+	"strings"
+	"time"
+)
+
+func With(queue, path string, delay time.Duration) Params {
+	if strings.TrimSpace(queue) == "" {
+		panic("queue is empty")
+	}
+	if strings.TrimSpace(path) == "" {
+		panic("path is empty")
+	}
+	if delay < 0 {
+		panic("delay is negative")
+	}
+	return params{queue: queue, path: path, delay: delay}
+}
+
+type Params interface {
+	Queue() string
+	Path() string
+	Delay() time.Duration
+}
+
+var _ Params = params{}
+
+type params struct {
+	queue string
+	path  string
+	delay time.Duration
+}
+
+func (p params) Queue() string {
+	return p.queue
+}
+
+func (p params) Path() string {
+	return p.path
+}
+
+func (p params) Delay() time.Duration {
+	return p.delay
+}
 
 type Function interface {
-	EnqueueWork(c context.Context, args ...interface{}) error
-	EnqueueWorkMulti(c context.Context, args ...[]interface{}) error
+	EnqueueWork(c context.Context, params Params, args ...interface{}) error
+	EnqueueWorkMulti(c context.Context, params Params, args ...[]interface{}) error
 }
 
 type function struct {
-	enqueueWork      func(c context.Context, args ...interface{}) error
-	enqueueWorkMulti func(c context.Context, args ...[]interface{}) error
+	enqueueWork      func(c context.Context, params Params, args ...interface{}) error
+	enqueueWorkMulti func(c context.Context, params Params, args ...[]interface{}) error
 }
 
 func NewFunction(
-	enqueueWork func(c context.Context, args ...interface{}) error,
-	enqueueWorkMulti func(c context.Context, args ...[]interface{}) error,
+	enqueueWork func(c context.Context, params Params, args ...interface{}) error,
+	enqueueWorkMulti func(c context.Context, params Params, args ...[]interface{}) error,
 ) Function {
 	return function{
 		enqueueWork:      enqueueWork,
@@ -22,12 +65,12 @@ func NewFunction(
 	}
 }
 
-func (f function) EnqueueWork(c context.Context, args ...interface{}) error {
-	return f.enqueueWork(c, args...)
+func (f function) EnqueueWork(c context.Context, params Params, args ...interface{}) error {
+	return f.enqueueWork(c, params, args...)
 }
 
-func (f function) EnqueueWorkMulti(c context.Context, args ...[]interface{}) error {
-	return f.enqueueWorkMulti(c, args...)
+func (f function) EnqueueWorkMulti(c context.Context, params Params, args ...[]interface{}) error {
+	return f.enqueueWorkMulti(c, params, args...)
 }
 
 func MustRegisterFunc(key string, i any) Function {
