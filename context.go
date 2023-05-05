@@ -2,29 +2,35 @@ package strongo
 
 import (
 	"context"
-	"github.com/strongo/i18n"
-	"reflect"
 )
 
 // ExecutionContext is execution context for UI app
 // Contains translator and context.Context
 type ExecutionContext interface {
-	i18n.SingleLocaleTranslator
 	Context() context.Context
 }
 
-// AppContext is app user context for an app
+// AppContext is app context for an app
+// Deprecated: use AppUserSettings instead
 type AppContext interface {
-	AppUserEntityKind() string
-	AppUserEntityType() reflect.Type
+}
+
+// AppUserSettings is app user record setup for an app
+type AppUserSettings interface {
+	AppUserCollectionName() string
 	NewAppUserEntity() AppUser
-	GetTranslator(c context.Context) i18n.Translator
-	SupportedLocales() i18n.LocalesProvider
+
+	// AppUserEntityKind returns kind of app user entity
+	// Deprecated: use AppUserEntityType() instead
+	//AppUserEntityKind() string
+
+	// AppUserEntityType returns type of a DTO struct for an app user record
+	// Deprecated: use NewAppUserEntity() instead
+	//AppUserEntityType() reflect.Type
 }
 
 type executionContext struct {
 	c context.Context
-	i18n.SingleLocaleTranslator
 }
 
 func (ec executionContext) Context() context.Context {
@@ -32,9 +38,8 @@ func (ec executionContext) Context() context.Context {
 }
 
 // NewExecutionContext creates new execution context
-func NewExecutionContext(c context.Context, translator i18n.SingleLocaleTranslator) ExecutionContext {
+func NewExecutionContext(c context.Context) ExecutionContext {
 	return executionContext{
-		c:                      c,
-		SingleLocaleTranslator: translator,
+		c: c,
 	}
 }

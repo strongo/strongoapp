@@ -15,13 +15,17 @@ type ownedByUser struct {
 	DtUpdated time.Time `datastore:",omitempty"`
 }
 
-type OwnedByUserWithIntID struct {
+type OwnedByUserWithID struct {
 	ownedByUser
+	AppUserID string `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
+
+	// AppUserIntID is a strongly typed ID of the user
+	// TODO: mark as deprecated and use AppUserID instead
 	AppUserIntID int64
 }
 
-func NewOwnedByUserWithIntID(id int64, created time.Time) OwnedByUserWithIntID {
-	return OwnedByUserWithIntID{
+func NewOwnedByUserWithIntID(id int64, created time.Time) OwnedByUserWithID {
+	return OwnedByUserWithID{
 		ownedByUser: ownedByUser{
 			DtCreated: created,
 		},
@@ -29,12 +33,12 @@ func NewOwnedByUserWithIntID(id int64, created time.Time) OwnedByUserWithIntID {
 }
 
 var (
-	_ BelongsToUserWithIntID = (*OwnedByUserWithIntID)(nil)
-	_ CreatedTimesSetter     = (*OwnedByUserWithIntID)(nil)
-	_ UpdatedTimeSetter      = (*OwnedByUserWithIntID)(nil)
+	//_ BelongsToUserWithIntID = (*OwnedByUserWithID)(nil)
+	_ CreatedTimesSetter = (*OwnedByUserWithID)(nil)
+	_ UpdatedTimeSetter  = (*OwnedByUserWithID)(nil)
 )
 
-func (ownedByUser OwnedByUserWithIntID) Validate() error {
+func (ownedByUser *OwnedByUserWithID) Validate() error {
 	if ownedByUser.AppUserIntID == 0 {
 		return errors.New("AppUserIntID == 0")
 	}
@@ -49,16 +53,24 @@ func (ownedByUser OwnedByUserWithIntID) Validate() error {
 	return nil
 }
 
-func (ownedByUser *OwnedByUserWithIntID) GetAppUserID() interface{} {
+func (ownedByUser *OwnedByUserWithID) GetAppUserID() string {
+	if ownedByUser.AppUserID != "" {
+		return ownedByUser.AppUserID
+	}
+	return strconv.FormatInt(ownedByUser.AppUserIntID, 10)
+}
+
+func (ownedByUser *OwnedByUserWithID) GetAppUserIntID() int64 {
 	return ownedByUser.AppUserIntID
 }
 
-func (ownedByUser *OwnedByUserWithIntID) GetAppUserIntID() int64 {
-	return ownedByUser.AppUserIntID
+func (ownedByUser *OwnedByUserWithID) SetAppUserIntID(appUserID int64) {
+	ownedByUser.SetAppUserID(strconv.FormatInt(appUserID, 10))
 }
 
-func (ownedByUser *OwnedByUserWithIntID) SetAppUserIntID(appUserID int64) {
-	ownedByUser.AppUserIntID = appUserID
+func (ownedByUser *OwnedByUserWithID) SetAppUserID(appUserID string) {
+	ownedByUser.AppUserID = appUserID
+	ownedByUser.AppUserIntID = 0
 }
 
 func (ownedByUser *ownedByUser) SetCreatedTime(v time.Time) {

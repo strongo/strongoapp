@@ -12,12 +12,8 @@ github.com/stretchr/testify v1.7.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO+kdMU+MU=
 github.com/stretchr/testify v1.8.2 h1:+h33VjcLVPDHtOdpUCuF+7gSuG3yGIftsP1YvFihtJ8=
 github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
-github.com/strongo/i18n v0.0.2 h1:UNEUj9NHlEZIeV/tluFSE2cQcKmnIOkCbdO4Zmbq4pE=
-github.com/strongo/i18n v0.0.2/go.mod h1:4jBQ4PJ3Uiri2Y+LHJ5/o1nB1H2ToddRW/yZXSOTUjE=
 github.com/strongo/random v0.0.1 h1:OZHJBb/3uEa7OX8L2Dv2pLnSeewRmXMyTACoeto6O8I=
 github.com/strongo/random v0.0.1/go.mod h1:/pSI+SjBNLBkjljNtVdYr6ERddA+LqSa87o0/s+9iuU=
-github.com/strongo/slice v0.1.2 h1:EWgXEZiEfiKUacVUNE19gxJNfWLsaCvAgaTn4m7SfFg=
-github.com/strongo/slice v0.1.2/go.mod h1:BU7lwUgp3k4EXTc0zLW2SsPiWeGkDoF3ybu6nlVjFLY=
 github.com/strongo/slice v0.1.3 h1:83I+q3Dp2lgBROpXSDuFPgeewqhkewZaMXMuRikNrN8=
 github.com/strongo/slice v0.1.3/go.mod h1:BU7lwUgp3k4EXTc0zLW2SsPiWeGkDoF3ybu6nlVjFLY=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=

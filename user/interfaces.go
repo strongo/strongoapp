@@ -3,7 +3,8 @@ package user
 import "time"
 
 type BelongsToUser interface {
-	GetAppUserID() interface{}
+	GetAppUserID() string
+	SetAppUserID(appUserID string)
 }
 
 type BelongsToUserWithIntID interface {
@@ -11,13 +12,6 @@ type BelongsToUserWithIntID interface {
 	GetAppUserIntID() int64
 	SetAppUserIntID(appUserID int64)
 }
-
-type BelongsToUserWithStrID interface {
-	BelongsToUser
-	GetAppUserStrID() string
-	SetAppUserStrID(appUserID string)
-}
-
 
 type CreatedTimesSetter interface {
 	SetCreatedTime(time.Time)
