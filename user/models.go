@@ -3,8 +3,6 @@ package user
 import (
 	"errors"
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
-	"github.com/strongo/slice"
 	"strconv"
 	"strings"
 	"time"
@@ -89,8 +87,8 @@ type AccountData interface {
 }
 
 type AccountRecord interface {
-	Key() *dal.Key
-	Record() dal.Record
+	//Key() *dal.Key
+	//Record() dal.Record
 	AccountData() AccountData
 	UserAccount() Account
 	GetEmail() string
@@ -191,7 +189,7 @@ func (ua *AccountsOfUser) SetBotUserID(platform, botID, botUserID string) {
 // RemoveAccount removes account from the list of account IDs.
 func (ua *AccountsOfUser) RemoveAccount(userAccount Account) (changed bool) {
 	count := len(ua.Accounts)
-	ua.Accounts = slice.RemoveInPlace(userAccount.String(), ua.Accounts)
+	ua.Accounts = removeInPlace(userAccount.String(), ua.Accounts)
 	return len(ua.Accounts) != count
 }
 
