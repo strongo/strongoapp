@@ -8,25 +8,21 @@ import (
 	"time"
 )
 
-type ownedByUser struct {
-	DtCreated time.Time
-	DtUpdated time.Time `datastore:",omitempty"`
-}
-
 type OwnedByUserWithID struct {
-	ownedByUser
-	AppUserID string `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
+	AppUserID string // intentionally indexed & do NOT omitempty (so we can find records with empty AppUserID)
 
 	// AppUserIntID is a strongly typed ID of the user
-	// TODO: mark as deprecated and use AppUserID instead
+	// Deprecated: use AppUserID instead
 	AppUserIntID int64
+
+	DtCreated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
+	DtUpdated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
 }
 
-func NewOwnedByUserWithIntID(id int64, created time.Time) OwnedByUserWithID {
+func NewOwnedByUserWithID(id string, created time.Time) OwnedByUserWithID {
 	return OwnedByUserWithID{
-		ownedByUser: ownedByUser{
-			DtCreated: created,
-		},
+		AppUserID: id,
+		DtCreated: created,
 	}
 }
 
@@ -71,11 +67,11 @@ func (ownedByUser *OwnedByUserWithID) SetAppUserID(appUserID string) {
 	ownedByUser.AppUserIntID = 0
 }
 
-func (ownedByUser *ownedByUser) SetCreatedTime(v time.Time) {
+func (ownedByUser *OwnedByUserWithID) SetCreatedTime(v time.Time) {
 	ownedByUser.DtCreated = v
 }
 
-func (ownedByUser *ownedByUser) SetUpdatedTime(v time.Time) {
+func (ownedByUser *OwnedByUserWithID) SetUpdatedTime(v time.Time) {
 	ownedByUser.DtUpdated = v
 }
 
@@ -87,8 +83,6 @@ type AccountData interface {
 }
 
 type AccountRecord interface {
-	//Key() *dal.Key
-	//Record() dal.Record
 	AccountData() AccountData
 	UserAccount() Account
 	GetEmail() string
