@@ -129,7 +129,7 @@ type AccountData interface {
 
 type AccountRecord interface {
 	Key() Account
-	Data() *AccountData
+	Data() AccountData
 }
 
 type Names struct {
