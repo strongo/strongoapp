@@ -90,6 +90,7 @@ var _ AccountData = (*AccountDataBase)(nil)
 type AccountDataBase struct {
 	Account
 	OwnedByUserWithID
+	Names
 	EmailLowerCase string
 	EmailConfirmed bool
 	DtLastLogin    time.Time
