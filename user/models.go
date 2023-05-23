@@ -91,6 +91,7 @@ type AccountDataBase struct {
 	Account
 	OwnedByUserWithID
 	Names
+	LastLogin
 	EmailLowerCase string
 	EmailConfirmed bool
 	DtLastLogin    time.Time
