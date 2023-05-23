@@ -8,29 +8,39 @@ import (
 	"time"
 )
 
-type OwnedByUserWithID struct {
-	AppUserID string // intentionally indexed & do NOT omitempty (so we can find records with empty AppUserID)
-
-	// AppUserIntID is a strongly typed ID of the user
-	// Deprecated: use AppUserID instead
-	AppUserIntID int64
-
-	DtCreated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
-	DtUpdated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
-}
-
+// NewOwnedByUserWithID creates a new OwnedByUserWithID, takes user ID and time of creation
 func NewOwnedByUserWithID(id string, created time.Time) OwnedByUserWithID {
+	if id == "" {
+		panic("id is empty string")
+	}
+	if created.IsZero() {
+		panic("created is zero time")
+	}
 	return OwnedByUserWithID{
 		AppUserID: id,
 		DtCreated: created,
 	}
 }
 
-var (
-	//_ BelongsToUserWithIntID = (*OwnedByUserWithID)(nil)
-	_ CreatedTimesSetter = (*OwnedByUserWithID)(nil)
-	_ UpdatedTimeSetter  = (*OwnedByUserWithID)(nil)
-)
+// OwnedByUserWithID is a struct that implements BelongsToUser & BelongsToUserWithIntID
+type OwnedByUserWithID struct {
+	AppUserID string // intentionally indexed & do NOT omitempty (so we can find records with empty AppUserID)
+
+	// AppUserIntID is a strongly typed integer ID of a user
+	// Deprecated: use AppUserID instead. Remove BelongsToUserWithIntID once AppUserIntID is removed.
+	AppUserIntID int64
+
+	DtCreated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
+	DtUpdated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
+}
+
+func (ownedByUser *OwnedByUserWithID) GetCreatedTime() time.Time {
+	return ownedByUser.DtCreated
+}
+
+func (ownedByUser *OwnedByUserWithID) GetUpdatedTime() time.Time {
+	return ownedByUser.DtUpdated
+}
 
 func (ownedByUser *OwnedByUserWithID) Validate() error {
 	if ownedByUser.AppUserIntID == 0 {
@@ -75,17 +85,49 @@ func (ownedByUser *OwnedByUserWithID) SetUpdatedTime(v time.Time) {
 	ownedByUser.DtUpdated = v
 }
 
+var _ AccountData = (*AccountDataBase)(nil)
+
+type AccountDataBase struct {
+	Account
+	OwnedByUserWithID
+	EmailLowerCase string
+	EmailConfirmed bool
+	DtLastLogin    time.Time
+}
+
+func (a *AccountDataBase) GetEmailLowerCase() string {
+	return a.EmailLowerCase
+}
+
+func (a *AccountDataBase) SetLastLogin(time time.Time) {
+	a.DtLastLogin = time
+}
+
+func (a *AccountDataBase) GetEmailConfirmed() bool {
+	return a.EmailConfirmed
+}
+
+func (a *AccountDataBase) SetEmailConfirmed(value bool) {
+	a.EmailConfirmed = value
+}
+
+func (a *AccountDataBase) GetNames() Names {
+	//TODO implement me
+	panic("implement me")
+}
+
+// AccountData stores info about user account with auth provider
 type AccountData interface {
 	BelongsToUser
+	GetEmailLowerCase() string
+	GetEmailConfirmed() bool
 	SetLastLogin(time time.Time)
-	IsEmailConfirmed() bool
 	GetNames() Names
 }
 
 type AccountRecord interface {
-	AccountData() AccountData
-	UserAccount() Account
-	GetEmail() string
+	Key() Account
+	Data() AccountData
 }
 
 type Names struct {
@@ -98,11 +140,16 @@ func (entity Names) GetNames() Names {
 	return entity
 }
 
+// Account stores info about user account with auth provider
 type Account struct {
 	// Global ID of Account
-	Provider string
+	Provider string // E.g. Email, Google, Facebook, etc.
 	App      string
-	ID       string
+	ID       string // An ID of a user at auth provider. E.g. email address, some ID, etc.
+}
+
+func (ua Account) String() string {
+	return ua.Provider + ":" + ua.App + ":" + ua.ID
 }
 
 func ParseUserAccount(s string) (ua Account, err error) {
@@ -124,10 +171,6 @@ func ParseUserAccount(s string) (ua Account, err error) {
 		err = fmt.Errorf("invalid Account string, expected 1 or 2 ':' characters, got: %d", strings.Count(s, ":"))
 	}
 	return
-}
-
-func (ua Account) String() string {
-	return ua.Provider + ":" + ua.App + ":" + ua.ID
 }
 
 type AccountsOfUser struct {

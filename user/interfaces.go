@@ -2,21 +2,18 @@ package user
 
 import "time"
 
+// BelongsToUser should be implemented by any struct that belongs to a single user
 type BelongsToUser interface {
-	GetAppUserID() string
+	GetAppUserID() (appUserID string)
 	SetAppUserID(appUserID string)
+	GetCreatedTime() time.Time
+	GetUpdatedTime() time.Time
+	SetUpdatedTime(time.Time)
 }
 
+// BelongsToUserWithIntID is deprecated. Remove once OwnedByUserWithID.AppUserIntID is removed.
 type BelongsToUserWithIntID interface {
 	BelongsToUser
-	GetAppUserIntID() int64
+	GetAppUserIntID() (appUserID int64)
 	SetAppUserIntID(appUserID int64)
-}
-
-type CreatedTimesSetter interface {
-	SetCreatedTime(time.Time)
-}
-
-type UpdatedTimeSetter interface {
-	SetUpdatedTime(time.Time)
 }
