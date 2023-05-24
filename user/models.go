@@ -87,30 +87,76 @@ func (ownedByUser *OwnedByUserWithID) SetUpdatedTime(v time.Time) {
 
 var _ AccountData = (*AccountDataBase)(nil)
 
+func NewEmailData(email string) EmailData {
+	return EmailData{
+		EmailRaw:       email,
+		EmailLowerCase: strings.ToLower(email),
+	}
+}
+
+// EmailData stores info about email
+type EmailData struct {
+	// Deprecated: use EmailRaw & EmailLowerCase instead
+	Email          string `dalgo:",noindex" datastore:",noindex"` // TODO: remove once old records migrated to new format that uses EmailRaw & EmailLowerCase
+	EmailRaw       string `dalgo:",noindex" datastore:",noindex"`
+	EmailLowerCase string
+	EmailConfirmed bool
+}
+
+func (ed *EmailData) Validate() error {
+	if ed.Email != "" && ed.EmailRaw == "" {
+		ed.EmailRaw = ed.Email
+		ed.EmailLowerCase = strings.ToLower(ed.EmailRaw)
+	}
+	if strings.ToLower(ed.EmailRaw) == ed.EmailLowerCase {
+		ed.EmailRaw = ""
+	}
+	if strings.ToLower(ed.EmailRaw) != ed.EmailLowerCase {
+		return fmt.Errorf("EmailRaw != EmailLowerCase: %s != %s", ed.EmailRaw, ed.EmailLowerCase)
+	}
+	return nil
+}
+
+func (ed *EmailData) GetEmailRaw() string {
+	if ed.EmailRaw != "" {
+		return ed.EmailRaw
+	}
+	if ed.EmailLowerCase != "" {
+		return ed.EmailLowerCase
+	}
+	return ed.Email
+}
+
+func (ed *EmailData) GetEmailLowerCase() string {
+	return ed.EmailLowerCase
+}
+
+func (ed *EmailData) GetEmailConfirmed() bool {
+	return ed.EmailConfirmed
+}
+
+func (ed *EmailData) SetEmailConfirmed(value bool) {
+	ed.EmailConfirmed = value
+}
+
 type AccountDataBase struct {
 	Account
 	OwnedByUserWithID
 	Names
 	LastLogin
-	EmailLowerCase string
-	EmailConfirmed bool
-	DtLastLogin    time.Time
-}
+	EmailData
 
-func (a *AccountDataBase) GetEmailLowerCase() string {
-	return a.EmailLowerCase
+	Admin bool
+
+	// ClientID is an OAuth2 client ID
+	ClientID string
+
+	FederatedIdentity string `dalgo:",noindex" datastore:",noindex"`
+	FederatedProvider string `dalgo:",noindex" datastore:",noindex"`
 }
 
 func (a *AccountDataBase) SetLastLogin(time time.Time) {
 	a.DtLastLogin = time
-}
-
-func (a *AccountDataBase) GetEmailConfirmed() bool {
-	return a.EmailConfirmed
-}
-
-func (a *AccountDataBase) SetEmailConfirmed(value bool) {
-	a.EmailConfirmed = value
 }
 
 func (a *AccountDataBase) GetNames() Names {
