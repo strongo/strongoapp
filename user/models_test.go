@@ -1,7 +1,6 @@
 package user
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
@@ -40,7 +39,10 @@ func TestAccountsOfUser_AddAccount(t *testing.T) {
 func TestAccountsOfUser_RemoveAccount(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		accounts := AccountsOfUser{}
-		assert.False(t, accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"}))
+		changed := accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"})
+		if changed {
+			t.Error("Should return changed=False")
+		}
 	})
 	t.Run("non_empty", func(t *testing.T) {
 		accounts := AccountsOfUser{
@@ -50,8 +52,12 @@ func TestAccountsOfUser_RemoveAccount(t *testing.T) {
 				"email::u3@example.com",
 			},
 		}
-		assert.False(t, accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"}))
-		assert.True(t, accounts.RemoveAccount(Account{Provider: "email", ID: "u2@example.com"}))
+		if changed := accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"}); changed {
+			t.Error("Should return changed=False")
+		}
+		if changed := accounts.RemoveAccount(Account{Provider: "email", ID: "u2@example.com"}); !changed {
+			t.Error("Should return changed=True")
+		}
 	})
 }
 
@@ -81,7 +87,9 @@ func TestNewOwnedByUserWithID(t *testing.T) {
 				}()
 			}
 			actual := NewOwnedByUserWithID(tt.args.id, tt.args.created)
-			assert.Equalf(t, tt.want, actual, "NewOwnedByUserWithID(%v, %v)", tt.args.id, tt.args.created)
+			if actual != tt.want {
+				t.Errorf("NewOwnedByUserWithID(%v, %v) = %v, want %v", tt.args.id, tt.args.created, actual, tt.want)
+			}
 		})
 	}
 }
