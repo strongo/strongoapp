@@ -1,4 +1,4 @@
-package user
+package appuser
 
 import "time"
 
@@ -11,9 +11,9 @@ type BelongsToUser interface {
 	SetUpdatedTime(time.Time)
 }
 
-// BelongsToUserWithIntID is deprecated. Remove once OwnedByUserWithID.AppUserIntID is removed.
-type BelongsToUserWithIntID interface {
-	BelongsToUser
-	GetAppUserIntID() (appUserID int64)
-	SetAppUserIntID(appUserID int64)
-}
+//// BelongsToUserWithIntID is deprecated. Remove once OwnedByUserWithID.AppUserIntID is removed.
+//type BelongsToUserWithIntID interface {
+//	BelongsToUser
+//	GetAppUserIntID() (appUserID int64)
+//	SetAppUserIntID(appUserID int64)
+//}

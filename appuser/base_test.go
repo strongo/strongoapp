@@ -1,57 +1,48 @@
-package strongo
+package appuser
 
 import (
 	"testing"
 )
 
-func TestUserNames_SetNames(t *testing.T) {
+func TestBase_SetNames(t *testing.T) {
 	type args struct {
-		names Names
-	}
-	strPtr := func(s string) *string {
-		return &s
+		names []Name
 	}
 	tests := []struct {
 		name     string
-		user     UserNames
+		user     NameFields
 		args     args
-		expected UserNames
+		expected NameFields
 	}{
 		{
 			name: "first_name",
-			user: UserNames{FirstName: "Jack", LastName: "Doe"},
+			user: NameFields{FirstName: "Jack", LastName: "Doe"},
 			args: args{
-				names: Names{
-					FirstName: strPtr("John"),
-				},
+				names: []Name{{Field: FirstName, Value: "John"}},
 			},
-			expected: UserNames{
+			expected: NameFields{
 				FirstName: "John",
 				LastName:  "Doe",
 			},
 		},
 		{
 			name: "last_name",
-			user: UserNames{FirstName: "Jack", LastName: "Doe"},
+			user: NameFields{FirstName: "Jack", LastName: "Doe"},
 			args: args{
-				names: Names{
-					LastName: strPtr("Jones"),
-				},
+				names: []Name{{Field: LastName, Value: "Jones"}},
 			},
-			expected: UserNames{
+			expected: NameFields{
 				FirstName: "Jack",
 				LastName:  "Jones",
 			},
 		},
 		{
 			name: "user_name",
-			user: UserNames{FirstName: "Jack", LastName: "Doe"},
+			user: NameFields{FirstName: "Jack", LastName: "Doe"},
 			args: args{
-				names: Names{
-					UserName: strPtr("joker"),
-				},
+				names: []Name{{Field: Username, Value: "joker"}},
 			},
-			expected: UserNames{
+			expected: NameFields{
 				FirstName: "Jack",
 				LastName:  "Doe",
 				UserName:  "joker",
@@ -60,7 +51,7 @@ func TestUserNames_SetNames(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.user.SetNames(tt.args.names)
+			tt.user.SetNames(tt.args.names...)
 			if tt.user != tt.expected {
 				t.Errorf("AppUserBase.SetNames() = %v, want %v", tt.user, tt.expected)
 			}

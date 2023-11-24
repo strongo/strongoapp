@@ -2,6 +2,7 @@ package strongo
 
 import (
 	"context"
+	"github.com/strongo/app/appuser"
 )
 
 // ExecutionContext is execution context for UI app
@@ -17,16 +18,12 @@ type AppContext interface {
 
 // AppUserSettings is app user record setup for an app
 type AppUserSettings interface {
-	AppUserCollectionName() string
-	NewAppUserEntity() AppUser
 
-	// AppUserEntityKind returns kind of app user entity
-	// Deprecated: use AppUserEntityType() instead
-	//AppUserEntityKind() string
+	// AppUserCollectionName returns name of a collection for app user records
+	AppUserCollectionName() string // TODO: Add a link to example of usage
 
-	// AppUserEntityType returns type of a DTO struct for an app user record
-	// Deprecated: use NewAppUserEntity() instead
-	//AppUserEntityType() reflect.Type
+	// NewAppUserData TODO: Needs documentation on intended use and examples of usage
+	NewAppUserData() appuser.BaseUserData // TODO: Consider returning dalgo record
 }
 
 type executionContext struct {

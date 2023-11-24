@@ -1,4 +1,4 @@
-package user
+package appuser
 
 import (
 	"errors"
@@ -142,7 +142,7 @@ func (ed *EmailData) SetEmailConfirmed(value bool) {
 type AccountDataBase struct {
 	Account
 	OwnedByUserWithID
-	Names
+	NameFields
 	LastLogin
 	EmailData
 
@@ -159,7 +159,7 @@ func (a *AccountDataBase) SetLastLogin(time time.Time) {
 	a.DtLastLogin = time
 }
 
-func (a *AccountDataBase) GetNames() Names {
+func (a *AccountDataBase) GetNames() NameFields {
 	//TODO implement me
 	panic("implement me")
 }
@@ -170,22 +170,12 @@ type AccountData interface {
 	GetEmailLowerCase() string
 	GetEmailConfirmed() bool
 	SetLastLogin(time time.Time)
-	GetNames() Names
+	GetNames() NameFields
 }
 
 type AccountRecord interface {
 	Key() Account
 	Data() AccountData
-}
-
-type Names struct {
-	FirstName string `datastore:",noindex"`
-	LastName  string `datastore:",noindex"`
-	NickName  string `datastore:",noindex"`
-}
-
-func (entity Names) GetNames() Names {
-	return entity
 }
 
 // Account stores info about user account with auth provider

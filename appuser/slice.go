@@ -1,4 +1,4 @@
-package user
+package appuser
 
 // RemoveInPlace removes an item from a slice in place without new memory allocation
 func removeInPlace[T comparable](v T, slice []T) []T {
