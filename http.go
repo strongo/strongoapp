@@ -1,4 +1,4 @@
-package strongo
+package strongoapp
 
 import (
 	"net/http"

@@ -1,4 +1,4 @@
-package strongo
+package strongoapp
 
 // Environment defines environment
 type Environment int8
