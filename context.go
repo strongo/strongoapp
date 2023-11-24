@@ -2,7 +2,7 @@ package strongoapp
 
 import (
 	"context"
-	"github.com/strongo/app/appuser"
+	"github.com/strongo/strongoapp/appuser"
 )
 
 // ExecutionContext is execution context for UI app
