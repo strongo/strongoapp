@@ -1,20 +1,10 @@
 package strongo
 
 import (
-	"github.com/strongo/app/user"
 	"testing"
-	"time"
 )
 
 func TestUserNames_SetNames(t *testing.T) {
-	type fields struct {
-		DtCreated      time.Time
-		AccountsOfUser user.AccountsOfUser
-		Locale         string
-		FirstName      string
-		LastName       string
-		UserName       string
-	}
 	type args struct {
 		names Names
 	}
