@@ -28,7 +28,7 @@ type OwnedByUserWithID struct {
 
 	// AppUserIntID is a strongly typed integer ID of a user
 	// Deprecated: use AppUserID instead. Remove BelongsToUserWithIntID once AppUserIntID is removed.
-	AppUserIntID int64
+	//AppUserIntID int64
 
 	DtCreated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
 	DtUpdated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
@@ -43,8 +43,11 @@ func (ownedByUser *OwnedByUserWithID) GetUpdatedTime() time.Time {
 }
 
 func (ownedByUser *OwnedByUserWithID) Validate() error {
-	if ownedByUser.AppUserIntID == 0 {
-		return errors.New("AppUserIntID == 0")
+	//if ownedByUser.AppUserIntID == 0 {
+	//	return errors.New("AppUserIntID == 0")
+	//}
+	if ownedByUser.AppUserID == "" {
+		return errors.New("AppUserID is required field")
 	}
 	if ownedByUser.DtCreated.IsZero() {
 		return errors.New("DtCreated.IsZero()")
@@ -58,15 +61,16 @@ func (ownedByUser *OwnedByUserWithID) Validate() error {
 }
 
 func (ownedByUser *OwnedByUserWithID) GetAppUserID() string {
-	if ownedByUser.AppUserID != "" {
-		return ownedByUser.AppUserID
-	}
-	return strconv.FormatInt(ownedByUser.AppUserIntID, 10)
+	return ownedByUser.AppUserID
+	//if ownedByUser.AppUserID != "" {
+	//	return ownedByUser.AppUserID
+	//}
+	//return strconv.FormatInt(ownedByUser.AppUserIntID, 10)
 }
 
-func (ownedByUser *OwnedByUserWithID) GetAppUserIntID() int64 {
-	return ownedByUser.AppUserIntID
-}
+//func (ownedByUser *OwnedByUserWithID) GetAppUserIntID() int64 {
+//	return ownedByUser.AppUserIntID
+//}
 
 func (ownedByUser *OwnedByUserWithID) SetAppUserIntID(appUserID int64) {
 	ownedByUser.SetAppUserID(strconv.FormatInt(appUserID, 10))
@@ -74,7 +78,7 @@ func (ownedByUser *OwnedByUserWithID) SetAppUserIntID(appUserID int64) {
 
 func (ownedByUser *OwnedByUserWithID) SetAppUserID(appUserID string) {
 	ownedByUser.AppUserID = appUserID
-	ownedByUser.AppUserIntID = 0
+	//ownedByUser.AppUserIntID = 0
 }
 
 func (ownedByUser *OwnedByUserWithID) SetCreatedTime(v time.Time) {
@@ -96,18 +100,13 @@ func NewEmailData(email string) EmailData {
 
 // EmailData stores info about email
 type EmailData struct {
-	// Deprecated: use EmailRaw & EmailLowerCase instead
-	Email          string `dalgo:",noindex" datastore:",noindex"` // TODO: remove once old records migrated to new format that uses EmailRaw & EmailLowerCase
+	//Email          string `dalgo:",noindex" datastore:",noindex"` // TODO: remove once old records migrated to new format that uses EmailRaw & EmailLowerCase
 	EmailRaw       string `dalgo:",noindex" datastore:",noindex"`
 	EmailLowerCase string
 	EmailConfirmed bool
 }
 
 func (ed *EmailData) Validate() error {
-	if ed.Email != "" && ed.EmailRaw == "" {
-		ed.EmailRaw = ed.Email
-		ed.EmailLowerCase = strings.ToLower(ed.EmailRaw)
-	}
 	if strings.ToLower(ed.EmailRaw) == ed.EmailLowerCase {
 		ed.EmailRaw = ""
 	}
@@ -124,7 +123,7 @@ func (ed *EmailData) GetEmailRaw() string {
 	if ed.EmailLowerCase != "" {
 		return ed.EmailLowerCase
 	}
-	return ed.Email
+	return ""
 }
 
 func (ed *EmailData) GetEmailLowerCase() string {
@@ -140,11 +139,13 @@ func (ed *EmailData) SetEmailConfirmed(value bool) {
 }
 
 type AccountDataBase struct {
-	Account
+	AccountKey
 	OwnedByUserWithID
 	NameFields
 	LastLogin
 	EmailData
+
+	Domains []string `json:"domains" dalgo:"domains" firestore:"domains"` // E.g. website domain names used to authenticate user
 
 	Admin bool
 
@@ -174,39 +175,39 @@ type AccountData interface {
 }
 
 type AccountRecord interface {
-	Key() Account
+	Key() AccountKey
 	Data() AccountData
 }
 
-// Account stores info about user account with auth provider
-type Account struct {
-	// Global ID of Account
-	Provider string // E.g. Email, Google, Facebook, etc.
-	App      string
-	ID       string // An ID of a user at auth provider. E.g. email address, some ID, etc.
+// AccountKey stores info about user account with auth provider
+type AccountKey struct {
+	// Global ID of AccountKey
+	Provider string `json:"provider" dalgo:"provider" firestore:"dalgo"` // E.g. Email, Google, Facebook, etc.
+	App      string `json:"app" dalgo:"app" firestore:"app"`             // E.g. app ID, bot ID, etc.
+	ID       string `json:"id" dalgo:"id" firestore:"id"`                // An ID of a user at auth provider. E.g. email address, some ID, etc.
 }
 
-func (ua Account) String() string {
+func (ua AccountKey) String() string {
 	return ua.Provider + ":" + ua.App + ":" + ua.ID
 }
 
-func ParseUserAccount(s string) (ua Account, err error) {
+func ParseUserAccount(s string) (ua AccountKey, err error) {
 	vals := strings.Split(s, ":")
 	switch len(vals) {
 	case 3:
-		ua = Account{
+		ua = AccountKey{
 			Provider: vals[0],
 			App:      vals[1],
 			ID:       vals[2],
 		}
 	case 2:
-		ua = Account{
+		ua = AccountKey{
 			Provider: vals[0],
 			App:      "",
 			ID:       vals[1],
 		}
 	default:
-		err = fmt.Errorf("invalid Account string, expected 1 or 2 ':' characters, got: %d", strings.Count(s, ":"))
+		err = fmt.Errorf("invalid AccountKey string, expected 1 or 2 ':' characters, got: %d", strings.Count(s, ":"))
 	}
 	return
 }
@@ -216,7 +217,7 @@ type AccountsOfUser struct {
 	Accounts []string `datastore:",noindex"`
 }
 
-func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
+func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (changed bool) {
 	// TODO: if !IsKnownUserAccountProvider(userAccount.Provider) {
 	// 	panic("Unknown provider: " + userAccount.Provider)
 	// }
@@ -254,7 +255,7 @@ func (ua *AccountsOfUser) AddAccount(userAccount Account) (changed bool) {
 }
 
 func (ua *AccountsOfUser) SetBotUserID(platform, botID, botUserID string) {
-	ua.AddAccount(Account{
+	ua.AddAccount(AccountKey{
 		Provider: platform,
 		App:      botID,
 		ID:       botUserID,
@@ -262,7 +263,7 @@ func (ua *AccountsOfUser) SetBotUserID(platform, botID, botUserID string) {
 }
 
 // RemoveAccount removes account from the list of account IDs.
-func (ua *AccountsOfUser) RemoveAccount(userAccount Account) (changed bool) {
+func (ua *AccountsOfUser) RemoveAccount(userAccount AccountKey) (changed bool) {
 	count := len(ua.Accounts)
 	ua.Accounts = removeInPlace(userAccount.String(), ua.Accounts)
 	return len(ua.Accounts) != count
@@ -286,12 +287,14 @@ func (ua *AccountsOfUser) HasAccount(provider, app string) bool {
 	return false
 }
 
+// Deprecated: use HasAccount instead
 func (ua *AccountsOfUser) HasTelegramAccount() bool {
-	return ua.HasAccount("telegram", "")
+	panic("deprecated")
 }
 
+// Deprecated: use HasAccount instead
 func (ua *AccountsOfUser) HasGoogleAccount() bool {
-	return ua.HasAccount("google", "")
+	panic("deprecated")
 }
 
 func (ua *AccountsOfUser) GetTelegramUserIDs() (telegramUserIDs []int64) {
@@ -309,29 +312,23 @@ func (ua *AccountsOfUser) GetTelegramUserIDs() (telegramUserIDs []int64) {
 	return
 }
 
-func (ua *AccountsOfUser) GetTelegramAccounts() (telegramAccounts []Account) {
-	for _, a := range ua.Accounts {
-		if strings.HasPrefix(a, "telegram:") {
-			if ua, err := ParseUserAccount(a); err != nil {
-				panic(err)
-			} else {
-				telegramAccounts = append(telegramAccounts, ua)
-			}
-		}
-	}
-	return
+// Deprecated: use GetAccounts instead
+func (ua *AccountsOfUser) GetTelegramAccounts() (telegramAccounts []AccountKey, er error) {
+	return nil, errors.New("GetTelegramAccounts() is deprecated, use GetAccounts(platform string) instead")
 }
 
-func (ua *AccountsOfUser) GetGoogleAccount() (userAccount *Account, err error) {
-	return ua.GetAccount("google", "")
+// Deprecated: use GetAccounts instead
+func (ua *AccountsOfUser) GetGoogleAccount() (userAccount *AccountKey, err error) {
+	return nil, errors.New("GetGoogleAccount() is deprecated, use GetAccount(provider, app string) instead")
 }
 
-func (ua *AccountsOfUser) GetFbAccounts() (userAccounts []Account, err error) {
-	return ua.GetAccounts("fb")
+// Deprecated: use GetAccounts instead
+func (ua *AccountsOfUser) GetFbAccounts() (userAccounts []AccountKey, err error) {
+	return nil, errors.New("GetFbAccounts() is deprecated, use GetAccounts(platform string) instead")
 }
 
-func (ua *AccountsOfUser) GetAccounts(platform string) (userAccounts []Account, err error) {
-	var userAccount Account
+func (ua *AccountsOfUser) GetAccounts(platform string) (userAccounts []AccountKey, err error) {
+	var userAccount AccountKey
 	prefix := platform + ":"
 	for _, a := range ua.Accounts {
 		if strings.HasPrefix(a, prefix) {
@@ -344,26 +341,25 @@ func (ua *AccountsOfUser) GetAccounts(platform string) (userAccounts []Account, 
 	return
 }
 
-func (ua *AccountsOfUser) GetFbAccount(app string) (userAccount *Account, err error) {
-	if app == "" {
-		return nil, errors.New("Parameter app is required")
-	}
-	return ua.GetAccount("fb", app)
+// Deprecated: use GetAccount instead
+func (ua *AccountsOfUser) GetFbAccount(app string) (userAccount *AccountKey, err error) {
+	return nil, errors.New("GetFbAccount() is deprecated, use GetAccount() instead")
 }
 
-func (ua *AccountsOfUser) GetFbmAccount(fbPageID string) (userAccount *Account, err error) {
-	return ua.GetAccount("fbm", fbPageID)
+// Deprecated: use GetAccount instead
+func (ua *AccountsOfUser) GetFbmAccount(fbPageID string) (userAccount *AccountKey, err error) {
+	return nil, errors.New("GetFbmAccount() is deprecated, use GetAccount() instead")
 }
 
 // GetAccount returns the first account of the given provider and app.
-func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *Account, err error) {
+func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *AccountKey, err error) {
 	count := 0
 	prefix := userAccountPrefix(provider, app)
 
 	for _, a := range ua.Accounts {
 		if strings.HasPrefix(a, prefix) {
 			if count == 0 {
-				var ua Account
+				var ua AccountKey
 				if ua, err = ParseUserAccount(a); err != nil {
 					return
 				}
@@ -373,14 +369,14 @@ func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *Account
 		}
 	}
 	if userAccount != nil && count > 1 {
-		err = fmt.Errorf("User has %d linked '%v' accounts", count, provider)
+		err = fmt.Errorf("only 1 account from same auth provider allowed per user and user linked %d '%v' accounts", count, provider)
 	}
 	return
 }
 
 // LastLogin is a struct that contains the last login time of a user.
 type LastLogin struct {
-	DtLastLogin time.Time `datastore:",omitempty"`
+	DtLastLogin time.Time `json:"dtLastLogin" dalgo:"dtLastLogin" datastore:"dtLastLogin"`
 }
 
 // SetLastLogin sets the last login time of a user.

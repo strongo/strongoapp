@@ -88,10 +88,10 @@ func (u *NameFields) GetFullName() string {
 		return u.FirstName + " " + u.LastName
 	}
 	if u.FirstName != "" && u.NickName != "" {
-		return fmt.Sprintf("%s (%s) %s", u.FirstName, u.NickName)
+		return fmt.Sprintf("%s (%s)", u.FirstName, u.NickName)
 	}
 	if u.LastName != "" && u.NickName != "" {
-		return fmt.Sprintf("%s (%s) %s", u.LastName, u.NickName)
+		return fmt.Sprintf("%s (%s)", u.LastName, u.NickName)
 	}
 	if u.FirstName != "" {
 		return u.FirstName

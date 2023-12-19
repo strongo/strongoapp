@@ -16,7 +16,7 @@ func TestAccountsOfUser_AddAccount(t *testing.T) {
 
 	t.Run("email", func(t *testing.T) {
 		accounts := AccountsOfUser{}
-		if changed := accounts.AddAccount(Account{Provider: "email", ID: "test@example.com"}); !changed {
+		if changed := accounts.AddAccount(AccountKey{Provider: "email", ID: "test@example.com"}); !changed {
 			t.Error("Shoud return changed=True")
 		}
 		verifyOutput(t, accounts, 1)
@@ -30,7 +30,7 @@ func TestAccountsOfUser_AddAccount(t *testing.T) {
 			}
 			verifyOutput(t, accounts, 0)
 		}()
-		if changed := accounts.AddAccount(Account{Provider: "telegram", ID: "123456"}); !changed {
+		if changed := accounts.AddAccount(AccountKey{Provider: "telegram", ID: "123456"}); !changed {
 			t.Error("Should return changed=True")
 		}
 	})
@@ -39,7 +39,7 @@ func TestAccountsOfUser_AddAccount(t *testing.T) {
 func TestAccountsOfUser_RemoveAccount(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		accounts := AccountsOfUser{}
-		changed := accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"})
+		changed := accounts.RemoveAccount(AccountKey{Provider: "email", ID: "test@example.com"})
 		if changed {
 			t.Error("Should return changed=False")
 		}
@@ -52,10 +52,10 @@ func TestAccountsOfUser_RemoveAccount(t *testing.T) {
 				"email::u3@example.com",
 			},
 		}
-		if changed := accounts.RemoveAccount(Account{Provider: "email", ID: "test@example.com"}); changed {
+		if changed := accounts.RemoveAccount(AccountKey{Provider: "email", ID: "test@example.com"}); changed {
 			t.Error("Should return changed=False")
 		}
-		if changed := accounts.RemoveAccount(Account{Provider: "email", ID: "u2@example.com"}); !changed {
+		if changed := accounts.RemoveAccount(AccountKey{Provider: "email", ID: "u2@example.com"}); !changed {
 			t.Error("Should return changed=True")
 		}
 	})
