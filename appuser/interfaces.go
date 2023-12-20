@@ -8,12 +8,5 @@ type BelongsToUser interface {
 	SetAppUserID(appUserID string)
 	GetCreatedTime() time.Time
 	GetUpdatedTime() time.Time
-	SetUpdatedTime(time.Time)
+	SetUpdatedTime(time.Time) error
 }
-
-//// BelongsToUserWithIntID is deprecated. Remove once OwnedByUserWithID.AppUserIntID is removed.
-//type BelongsToUserWithIntID interface {
-//	BelongsToUser
-//	GetAppUserIntID() (appUserID int64)
-//	SetAppUserIntID(appUserID int64)
-//}

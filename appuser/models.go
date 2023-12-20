@@ -3,6 +3,8 @@ package appuser
 import (
 	"errors"
 	"fmt"
+	"github.com/strongo/strongoapp/person"
+	"github.com/strongo/strongoapp/strongomodels"
 	"strconv"
 	"strings"
 	"time"
@@ -18,7 +20,9 @@ func NewOwnedByUserWithID(id string, created time.Time) OwnedByUserWithID {
 	}
 	return OwnedByUserWithID{
 		AppUserID: id,
-		DtCreated: created,
+		WithCreatedTimestamp: strongomodels.WithCreatedTimestamp{
+			DtCreated: created,
+		},
 	}
 }
 
@@ -30,16 +34,8 @@ type OwnedByUserWithID struct {
 	// Deprecated: use AppUserID instead. Remove BelongsToUserWithIntID once AppUserIntID is removed.
 	//AppUserIntID int64
 
-	DtCreated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
-	DtUpdated time.Time `json:",omitempty" datastore:",omitempty" firestore:",omitempty"`
-}
-
-func (ownedByUser *OwnedByUserWithID) GetCreatedTime() time.Time {
-	return ownedByUser.DtCreated
-}
-
-func (ownedByUser *OwnedByUserWithID) GetUpdatedTime() time.Time {
-	return ownedByUser.DtUpdated
+	strongomodels.WithCreatedTimestamp
+	strongomodels.WithUpdatedTimestamp
 }
 
 func (ownedByUser *OwnedByUserWithID) Validate() error {
@@ -85,8 +81,14 @@ func (ownedByUser *OwnedByUserWithID) SetCreatedTime(v time.Time) {
 	ownedByUser.DtCreated = v
 }
 
-func (ownedByUser *OwnedByUserWithID) SetUpdatedTime(v time.Time) {
-	ownedByUser.DtUpdated = v
+func (ownedByUser *OwnedByUserWithID) SetUpdatedTime(t time.Time) error {
+	if t.IsZero() {
+		return errors.New("passed update time is zero")
+	}
+	if t.Before(ownedByUser.DtCreated) {
+		return fmt.Errorf("updated time is before created time: %v < %v", t, ownedByUser.DtCreated)
+	}
+	return ownedByUser.WithUpdatedTimestamp.SetUpdatedTime(t)
 }
 
 var _ AccountData = (*AccountDataBase)(nil)
@@ -141,7 +143,7 @@ func (ed *EmailData) SetEmailConfirmed(value bool) {
 type AccountDataBase struct {
 	AccountKey
 	OwnedByUserWithID
-	NameFields
+	person.NameFields
 	LastLogin
 	EmailData
 
@@ -160,7 +162,7 @@ func (a *AccountDataBase) SetLastLogin(time time.Time) {
 	a.DtLastLogin = time
 }
 
-func (a *AccountDataBase) GetNames() NameFields {
+func (a *AccountDataBase) GetNames() person.NameFields {
 	//TODO implement me
 	panic("implement me")
 }
@@ -171,7 +173,7 @@ type AccountData interface {
 	GetEmailLowerCase() string
 	GetEmailConfirmed() bool
 	SetLastLogin(time time.Time)
-	GetNames() NameFields
+	GetNames() person.NameFields
 }
 
 type AccountRecord interface {
@@ -213,7 +215,6 @@ func ParseUserAccount(s string) (ua AccountKey, err error) {
 }
 
 type AccountsOfUser struct {
-	// Member of TgUserEntity class
 	Accounts []string `datastore:",noindex"`
 }
 

@@ -1,6 +1,7 @@
 package appuser
 
 import (
+	"github.com/strongo/strongoapp/strongomodels"
 	"testing"
 	"time"
 )
@@ -73,7 +74,7 @@ func TestNewOwnedByUserWithID(t *testing.T) {
 		shouldPanic bool
 		want        OwnedByUserWithID
 	}{
-		{name: "should_pass", args: args{id: "123", created: now}, want: OwnedByUserWithID{AppUserID: "123", DtCreated: now}},
+		{name: "should_pass", args: args{id: "123", created: now}, want: OwnedByUserWithID{AppUserID: "123", WithCreatedTimestamp: strongomodels.WithCreatedTimestamp{DtCreated: now}}},
 		{name: "empty_id", args: args{created: now}, shouldPanic: true},
 		{name: "empty_created", args: args{id: "123"}, shouldPanic: true},
 	}

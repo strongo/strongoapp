@@ -1,4 +1,4 @@
-package appuser
+package strongomodels
 
 import "time"
 

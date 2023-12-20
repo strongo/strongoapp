@@ -1,48 +1,49 @@
 package appuser
 
 import (
+	"github.com/strongo/strongoapp/person"
 	"testing"
 )
 
 func TestBase_SetNames(t *testing.T) {
 	type args struct {
-		names []Name
+		names []person.Name
 	}
 	tests := []struct {
 		name     string
-		user     NameFields
+		user     person.NameFields
 		args     args
-		expected NameFields
+		expected person.NameFields
 	}{
 		{
 			name: "first_name",
-			user: NameFields{FirstName: "Jack", LastName: "Doe"},
+			user: person.NameFields{FirstName: "Jack", LastName: "Doe"},
 			args: args{
-				names: []Name{{Field: FirstName, Value: "John"}},
+				names: []person.Name{{Field: person.FirstName, Value: "John"}},
 			},
-			expected: NameFields{
+			expected: person.NameFields{
 				FirstName: "John",
 				LastName:  "Doe",
 			},
 		},
 		{
 			name: "last_name",
-			user: NameFields{FirstName: "Jack", LastName: "Doe"},
+			user: person.NameFields{FirstName: "Jack", LastName: "Doe"},
 			args: args{
-				names: []Name{{Field: LastName, Value: "Jones"}},
+				names: []person.Name{{Field: person.LastName, Value: "Jones"}},
 			},
-			expected: NameFields{
+			expected: person.NameFields{
 				FirstName: "Jack",
 				LastName:  "Jones",
 			},
 		},
 		{
 			name: "user_name",
-			user: NameFields{FirstName: "Jack", LastName: "Doe"},
+			user: person.NameFields{FirstName: "Jack", LastName: "Doe"},
 			args: args{
-				names: []Name{{Field: Username, Value: "joker"}},
+				names: []person.Name{{Field: person.Username, Value: "joker"}},
 			},
-			expected: NameFields{
+			expected: person.NameFields{
 				FirstName: "Jack",
 				LastName:  "Doe",
 				UserName:  "joker",
@@ -51,7 +52,9 @@ func TestBase_SetNames(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.user.SetNames(tt.args.names...)
+			if err := tt.user.SetNames(tt.args.names...); err != nil {
+				t.Errorf("AppUserBase.SetNames() error = %v", err)
+			}
 			if tt.user != tt.expected {
 				t.Errorf("AppUserBase.SetNames() = %v, want %v", tt.user, tt.expected)
 			}
