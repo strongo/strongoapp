@@ -106,6 +106,16 @@ func (v *NameFields) GetFullName() string {
 	return ""
 }
 
+func (v *NameFields) Equal(v2 *NameFields) bool {
+	return v == nil && v2 == nil || v != nil && v2 != nil &&
+		v.FirstName == v2.FirstName &&
+		v.MiddleName == v2.MiddleName &&
+		v.LastName == v2.LastName &&
+		v.UserName == v2.UserName &&
+		v.NickName == v2.NickName &&
+		v.FullName == v2.FullName
+}
+
 // Validate validates NameField fields
 func (v *NameFields) Validate() error {
 	if v == nil {
