@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/strongo/strongoapp/person"
-	"github.com/strongo/strongoapp/strongomodels"
+	"github.com/strongo/strongoapp/with"
 	"strconv"
 	"strings"
 	"time"
@@ -18,12 +18,11 @@ func NewOwnedByUserWithID(id string, created time.Time) OwnedByUserWithID {
 	if created.IsZero() {
 		panic("created is zero time")
 	}
-	return OwnedByUserWithID{
+	result := OwnedByUserWithID{
 		AppUserID: id,
-		WithCreatedTimestamp: strongomodels.WithCreatedTimestamp{
-			DtCreated: created,
-		},
 	}
+	result.SetCreatedAt(created)
+	return result
 }
 
 // OwnedByUserWithID is a struct that implements BelongsToUser & BelongsToUserWithIntID
@@ -34,8 +33,8 @@ type OwnedByUserWithID struct {
 	// Deprecated: use AppUserID instead. Remove BelongsToUserWithIntID once AppUserIntID is removed.
 	//AppUserIntID int64
 
-	strongomodels.WithCreatedTimestamp
-	strongomodels.WithUpdatedTimestamp
+	with.CreatedFields
+	with.UpdatedFields
 }
 
 func (ownedByUser *OwnedByUserWithID) Validate() error {
@@ -45,12 +44,12 @@ func (ownedByUser *OwnedByUserWithID) Validate() error {
 	if ownedByUser.AppUserID == "" {
 		return errors.New("AppUserID is required field")
 	}
-	if ownedByUser.DtCreated.IsZero() {
+	if ownedByUser.CreatedAt.IsZero() {
 		return errors.New("DtCreated.IsZero()")
 	}
-	if ownedByUser.DtUpdated.IsZero() {
-		ownedByUser.DtUpdated = ownedByUser.DtCreated
-	} else if ownedByUser.DtUpdated.Before(ownedByUser.DtCreated) {
+	if ownedByUser.UpdatedAt.IsZero() {
+		ownedByUser.UpdatedAt = ownedByUser.CreatedAt
+	} else if ownedByUser.UpdatedAt.Before(ownedByUser.CreatedAt) {
 		return errors.New("DtUpdated.Before(DtCreated) is true")
 	}
 	return nil
@@ -75,20 +74,6 @@ func (ownedByUser *OwnedByUserWithID) SetAppUserIntID(appUserID int64) {
 func (ownedByUser *OwnedByUserWithID) SetAppUserID(appUserID string) {
 	ownedByUser.AppUserID = appUserID
 	//ownedByUser.AppUserIntID = 0
-}
-
-func (ownedByUser *OwnedByUserWithID) SetCreatedTime(v time.Time) {
-	ownedByUser.DtCreated = v
-}
-
-func (ownedByUser *OwnedByUserWithID) SetUpdatedTime(t time.Time) error {
-	if t.IsZero() {
-		return errors.New("passed update time is zero")
-	}
-	if t.Before(ownedByUser.DtCreated) {
-		return fmt.Errorf("updated time is before created time: %v < %v", t, ownedByUser.DtCreated)
-	}
-	return ownedByUser.WithUpdatedTimestamp.SetUpdatedTime(t)
 }
 
 var _ AccountData = (*AccountDataBase)(nil)
