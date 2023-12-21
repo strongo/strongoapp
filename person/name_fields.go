@@ -140,6 +140,11 @@ func (v *NameFields) Validate() error {
 	return nil
 }
 
+// IsEmpty checks if name is empty
+func (v *NameFields) IsEmpty() bool {
+	return v == nil || *v == NameFields{}
+}
+
 // ValidateAtLeast1Name validates required names
 func ValidateAtLeast1Name(v *NameFields) error {
 	if (*v == NameFields{}) {
