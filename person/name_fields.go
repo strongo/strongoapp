@@ -106,6 +106,20 @@ func (v *NameFields) GetFullName() string {
 	return ""
 }
 
+func DeductNamesFromFullNames(fullName string) (firstName, lastName string) {
+	for {
+		fullName = strings.Replace(fullName, "  ", " ", -1)
+		if !strings.Contains(fullName, "  ") {
+			break
+		}
+	}
+
+	if names := strings.Split(fullName, " "); len(names) == 2 {
+		return names[0], names[1]
+	}
+	return "", ""
+}
+
 func (v *NameFields) Equal(v2 *NameFields) bool {
 	return v == nil && v2 == nil || v != nil && v2 != nil &&
 		v.FirstName == v2.FirstName &&
