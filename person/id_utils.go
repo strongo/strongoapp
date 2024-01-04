@@ -26,6 +26,9 @@ func CleanForID(s string) string {
 
 // GenerateIDFromNameOrRandom generates ContactID from name or random
 func GenerateIDFromNameOrRandom(name *NameFields, existingIDs []string) (id string, err error) {
+	if name == nil {
+		name = &NameFields{}
+	}
 	trans := transliterator.NewTransliterator(nil)
 	//
 	if nick := CleanForID(trans.Transliterate(name.NickName, "")); nick != "" {
