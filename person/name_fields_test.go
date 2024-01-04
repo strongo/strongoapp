@@ -2,7 +2,7 @@ package person
 
 import "testing"
 
-func TestDeductNamesFromFullNames(t *testing.T) {
+func TestDeductNamesFromFullName(t *testing.T) {
 	type args struct {
 		fullName string
 	}
@@ -51,12 +51,12 @@ func TestDeductNamesFromFullNames(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotFirstName, gotLastName := DeductNamesFromFullNames(tt.args.fullName)
+			gotFirstName, gotLastName := DeductNamesFromFullName(tt.args.fullName)
 			if gotFirstName != tt.wantFirstName {
-				t.Errorf("DeductNamesFromFullNames() gotFirstName = %v, want %v", gotFirstName, tt.wantFirstName)
+				t.Errorf("DeductNamesFromFullName() gotFirstName = %v, want %v", gotFirstName, tt.wantFirstName)
 			}
 			if gotLastName != tt.wantLastName {
-				t.Errorf("DeductNamesFromFullNames() gotLastName = %v, want %v", gotLastName, tt.wantLastName)
+				t.Errorf("DeductNamesFromFullName() gotLastName = %v, want %v", gotLastName, tt.wantLastName)
 			}
 		})
 	}

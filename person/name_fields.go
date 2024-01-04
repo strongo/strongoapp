@@ -106,7 +106,7 @@ func (v *NameFields) GetFullName() string {
 	return ""
 }
 
-func DeductNamesFromFullNames(fullName string) (firstName, lastName string) {
+func DeductNamesFromFullName(fullName string) (firstName, lastName string) {
 	fullName = strings.TrimSpace(fullName)
 	for {
 		const doubleSpace = "  "
