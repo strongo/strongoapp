@@ -31,6 +31,18 @@ func TestDeductNamesFromFullNames(t *testing.T) {
 			wantLastName:  "Smith",
 		},
 		{
+			name:          " John Smith",
+			args:          args{fullName: " John Smith"},
+			wantFirstName: "John",
+			wantLastName:  "Smith",
+		},
+		{
+			name:          "John Smith ",
+			args:          args{fullName: "John Smith "},
+			wantFirstName: "John",
+			wantLastName:  "Smith",
+		},
+		{
 			name:          "John Jr Smith",
 			args:          args{fullName: "John Jr Smith"},
 			wantFirstName: "",

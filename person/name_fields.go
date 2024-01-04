@@ -107,11 +107,14 @@ func (v *NameFields) GetFullName() string {
 }
 
 func DeductNamesFromFullNames(fullName string) (firstName, lastName string) {
+	fullName = strings.TrimSpace(fullName)
 	for {
-		fullName = strings.Replace(fullName, "  ", " ", -1)
-		if !strings.Contains(fullName, "  ") {
+		const doubleSpace = "  "
+		if !strings.Contains(fullName, doubleSpace) {
 			break
 		}
+		const singleSpace = " "
+		fullName = strings.Replace(fullName, doubleSpace, singleSpace, -1)
 	}
 
 	if names := strings.Split(fullName, " "); len(names) == 2 {
