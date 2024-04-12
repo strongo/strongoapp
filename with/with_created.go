@@ -23,8 +23,13 @@ func (v *Created) Validate() error {
 	if strings.TrimSpace(v.By) == "" {
 		errs = append(errs, validation.NewErrRecordIsMissingRequiredField("by"))
 	}
-	if _, err := time.Parse(time.DateOnly, v.At); err != nil {
-		return validation.NewErrBadRecordFieldValue("on", err.Error())
+	if len(v.At) == len(time.DateOnly) {
+		// TODO: this does not feels right, temporary workaround for values passed from client in new member creation
+		if _, err := time.Parse(time.DateOnly, v.At); err != nil {
+			return validation.NewErrBadRecordFieldValue("at", err.Error())
+		}
+	} else if _, err := time.Parse(time.RFC3339, v.At); err != nil {
+		return validation.NewErrBadRecordFieldValue("at", err.Error())
 	}
 	if len(errs) > 0 {
 		return errors.Join(errs...)
