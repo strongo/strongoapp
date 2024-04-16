@@ -22,6 +22,15 @@ func (v RolesField) AddRole(role string) ( /* u dal.Update - does not make sense
 	return true
 }
 
+// RemoveRole removes a role from the list of roles, return true if the role was removed, false if the role was not found
+func (v RolesField) RemoveRole(role string) ( /* u dal.Update - does not make sense to return update as field unknown */ ok bool) {
+	if !v.HasRole(role) {
+		return false
+	}
+	slice.RemoveInPlace(role, v.Roles)
+	return true
+}
+
 // Validate returns error as soon as 1st role is not valid.
 func (v RolesField) Validate() error {
 	if err := ValidateSetSliceField("roles", v.Roles, true); err != nil {
