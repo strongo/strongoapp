@@ -27,7 +27,7 @@ func (v RolesField) RemoveRole(role string) ( /* u dal.Update - does not make se
 	if !v.HasRole(role) {
 		return false
 	}
-	slice.RemoveInPlace(role, v.Roles)
+	v.Roles = slice.RemoveInPlace(role, v.Roles)
 	return true
 }
 
