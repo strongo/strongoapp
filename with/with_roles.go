@@ -10,11 +10,11 @@ type RolesField struct {
 }
 
 // HasRole checks if an object has a given role
-func (v RolesField) HasRole(role string) bool {
+func (v *RolesField) HasRole(role string) bool {
 	return slice.Index(v.Roles, role) >= 0
 }
 
-func (v RolesField) AddRole(role string) ( /* u dal.Update - does not make sense to return update as field unknown */ ok bool) {
+func (v *RolesField) AddRole(role string) ( /* u dal.Update - does not make sense to return update as field unknown */ ok bool) {
 	if v.HasRole(role) {
 		return false
 	}
@@ -23,7 +23,7 @@ func (v RolesField) AddRole(role string) ( /* u dal.Update - does not make sense
 }
 
 // RemoveRole removes a role from the list of roles, return true if the role was removed, false if the role was not found
-func (v RolesField) RemoveRole(role string) ( /* u dal.Update - does not make sense to return update as field unknown */ ok bool) {
+func (v *RolesField) RemoveRole(role string) ( /* u dal.Update - does not make sense to return update as field unknown */ ok bool) {
 	if !v.HasRole(role) {
 		return false
 	}
@@ -32,7 +32,7 @@ func (v RolesField) RemoveRole(role string) ( /* u dal.Update - does not make se
 }
 
 // Validate returns error as soon as 1st role is not valid.
-func (v RolesField) Validate() error {
+func (v *RolesField) Validate() error {
 	if err := ValidateSetSliceField("roles", v.Roles, true); err != nil {
 		return err
 	}
