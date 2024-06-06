@@ -2,10 +2,10 @@ module github.com/strongo/strongoapp
 
 go 1.21
 
-toolchain go1.22.3
+toolchain go1.22.4
 
 require (
-	github.com/alexsergivan/transliterator v1.0.0
+	github.com/alexsergivan/transliterator v1.0.1
 	github.com/dal-go/dalgo v0.12.1
 	github.com/stretchr/testify v1.9.0
 	github.com/strongo/random v0.0.1
