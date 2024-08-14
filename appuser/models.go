@@ -162,8 +162,8 @@ type AccountData interface {
 }
 
 type AccountRecord interface {
-	Key() AccountKey
-	Data() AccountData
+	AccountKey() AccountKey
+	AccountData() AccountData
 }
 
 // AccountKey stores info about user account with auth provider
