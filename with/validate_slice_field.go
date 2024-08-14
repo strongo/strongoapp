@@ -2,8 +2,8 @@ package with
 
 import (
 	"fmt"
-	"github.com/strongo/slice"
 	"github.com/strongo/validation"
+	"slices"
 	"strings"
 )
 
@@ -16,9 +16,9 @@ func ValidateSetSliceField(field string, v []string, isRecordID bool) error {
 			return validation.NewErrBadRecordFieldValue(fmt.Sprintf("%v[%v]", field, i), "starts or ends with spaces")
 		}
 		if i < count {
-			if slice.Contains(v[i+1:], s) {
+			if slices.Contains(v[i+1:], s) {
 				return validation.NewErrBadRecordFieldValue(field,
-					fmt.Sprintf("duplicate value at indexes %d & %d: %s", i, slice.Index(v[i+1:], s), s))
+					fmt.Sprintf("duplicate value at indexes %d & %d: %s", i, slices.Index(v[i+1:], s), s))
 			}
 		}
 		if isRecordID {

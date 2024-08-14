@@ -2,8 +2,8 @@ package with
 
 import (
 	"fmt"
-	"github.com/strongo/slice"
 	"github.com/strongo/validation"
+	"slices"
 	"strings"
 )
 
@@ -65,7 +65,7 @@ func ValidateOptionalCountryID(field, value string) error {
 	if strings.ToUpper(countryID) != countryID {
 		return validation.NewErrBadRecordFieldValue(field, fmt.Sprintf("should be in upper case: %v", countryID))
 	}
-	if slice.Index(knownCountryIDs, countryID) < 0 {
+	if slices.Index(knownCountryIDs, countryID) < 0 {
 		return validation.NewErrBadRecordFieldValue(field, fmt.Sprintf("unknown countryID: %v", countryID))
 	}
 	return nil

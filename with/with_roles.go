@@ -2,6 +2,7 @@ package with
 
 import (
 	"github.com/strongo/slice"
+	"slices"
 )
 
 // RolesField defines a record with a list of roles
@@ -11,7 +12,7 @@ type RolesField struct {
 
 // HasRole checks if an object has a given role
 func (v *RolesField) HasRole(role string) bool {
-	return slice.Index(v.Roles, role) >= 0
+	return slices.Index(v.Roles, role) >= 0
 }
 
 func (v *RolesField) AddRole(role string) ( /* u dal.Update - does not make sense to return update as field unknown */ ok bool) {
