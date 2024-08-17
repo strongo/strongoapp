@@ -21,6 +21,7 @@ type NameFields struct {
 	MiddleName string `json:"middleName,omitempty" dalgo:"middleName,omitempty" firestore:"middleName,omitempty"`
 	LastName   string `json:"lastName,omitempty" dalgo:"lastName,omitempty" firestore:"lastName,omitempty"`
 	NickName   string `json:"nickName,omitempty" dalgo:"nickName,omitempty" firestore:"nickName,omitempty"`
+	ScreenName string `json:"screenName,omitempty" dalgo:"screenName,omitempty" firestore:"screenName,omitempty"`
 	FullName   string `json:"fullName,omitempty" dalgo:"fullName,omitempty" firestore:"fullName,omitempty"`
 }
 
@@ -30,6 +31,8 @@ func (v *NameFields) SetNames(names ...Name) error {
 		switch name.Field {
 		case Username:
 			v.UserName = name.Value
+		case FullName:
+			v.FullName = name.Value
 		case FirstName:
 			v.FirstName = name.Value
 		case MiddleName:
@@ -38,8 +41,8 @@ func (v *NameFields) SetNames(names ...Name) error {
 			v.LastName = name.Value
 		case NickName:
 			v.NickName = name.Value
-		case FullName:
-			v.FullName = name.Value
+		case ScreenName:
+			v.ScreenName = name.Value
 		default:
 			return fmt.Errorf("unsupported NameField field: %d", name.Field)
 		}
@@ -57,18 +60,20 @@ func (v *NameFields) String() string {
 // GetName returns a long NameField of a user or a contact
 func (v *NameFields) GetName(field NameField) string {
 	switch field {
+	case Username:
+		return v.UserName
+	case FullName:
+		return v.FullName
 	case FirstName:
 		return v.FirstName
 	case MiddleName:
 		return v.MiddleName
 	case LastName:
 		return v.LastName
-	case Username:
-		return v.UserName
 	case NickName:
 		return v.NickName
-	case FullName:
-		return v.FullName
+	case ScreenName:
+		return v.ScreenName
 	default:
 		return ""
 	}
@@ -102,6 +107,9 @@ func (v *NameFields) GetFullName() string {
 	}
 	if v.UserName != "" {
 		return v.UserName
+	}
+	if v.ScreenName != "" {
+		return v.ScreenName
 	}
 	return ""
 }
