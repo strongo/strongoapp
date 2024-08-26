@@ -3,6 +3,7 @@ package appuser
 import (
 	"errors"
 	"fmt"
+	"github.com/dal-go/dalgo/dal"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
 	"strconv"
@@ -79,6 +80,7 @@ func (ownedByUser *OwnedByUserWithID) SetAppUserID(appUserID string) {
 var _ AccountData = (*AccountDataBase)(nil)
 
 func NewEmailData(email string) EmailData {
+	email = strings.TrimSpace(email)
 	return EmailData{
 		EmailRaw:       email,
 		EmailLowerCase: strings.ToLower(email),
@@ -87,10 +89,9 @@ func NewEmailData(email string) EmailData {
 
 // EmailData stores info about email
 type EmailData struct {
-	//Email          string `dalgo:",noindex" datastore:",noindex"` // TODO: remove once old records migrated to new format that uses EmailRaw & EmailLowerCase
-	EmailRaw       string `dalgo:",noindex" datastore:",noindex"`
-	EmailLowerCase string
-	EmailConfirmed bool
+	EmailRaw       string `firestore:"emailRaw"`
+	EmailLowerCase string `firestore:"emailLowerCase"`
+	EmailConfirmed bool   `firestore:"emailConfirmed"`
 }
 
 func (ed *EmailData) Validate() error {
@@ -129,7 +130,7 @@ type AccountDataBase struct {
 	AccountKey
 	OwnedByUserWithID
 	person.NameFields
-	LastLogin
+	WithLastLogin
 	EmailData
 
 	Domains []string `json:"domains" dalgo:"domains" firestore:"domains"` // E.g. website domain names used to authenticate user
@@ -137,27 +138,39 @@ type AccountDataBase struct {
 	Admin bool
 
 	// ClientID is an OAuth2 client ID
-	ClientID string
+	ClientID string `json:"clientID" dalgo:"clientID" firestore:"clientID"`
 
-	FederatedIdentity string `dalgo:",noindex" datastore:",noindex"`
-	FederatedProvider string `dalgo:",noindex" datastore:",noindex"`
+	FederatedIdentity string `firestore:"federatedIdentity"`
+	FederatedProvider string `firestore:"federatedProvider"`
 }
 
-func (a *AccountDataBase) SetLastLogin(time time.Time) {
-	a.DtLastLogin = time
+func (v *AccountDataBase) Validate() error {
+	if err := v.OwnedByUserWithID.Validate(); err != nil {
+		return err
+	}
+	if err := v.NameFields.Validate(); err != nil {
+		return err
+	}
+	if err := v.WithLastLogin.Validate(); err != nil {
+		return err
+	}
+	if err := v.EmailData.Validate(); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (a *AccountDataBase) GetNames() person.NameFields {
+func (v *AccountDataBase) GetNames() person.NameFields {
 	//TODO implement me
 	panic("implement me")
 }
 
-// AccountData stores info about user account with auth provider
+// AccountData stores info about a user account with auth provider
 type AccountData interface {
 	BelongsToUser
 	GetEmailLowerCase() string
 	GetEmailConfirmed() bool
-	SetLastLogin(time time.Time)
+	SetLastLoginAt(time time.Time) dal.Update
 	GetNames() person.NameFields
 }
 
@@ -166,7 +179,7 @@ type AccountRecord interface {
 	AccountData() AccountData
 }
 
-// AccountKey stores info about user account with auth provider
+// AccountKey stores info about a user account with auth provider
 type AccountKey struct {
 	// Global ID of AccountKey
 	Provider string `json:"provider" dalgo:"provider" firestore:"dalgo"` // E.g. Email, Google, Facebook, etc.
@@ -248,7 +261,7 @@ func (ua *AccountsOfUser) SetBotUserID(platform, botID, botUserID string) {
 	})
 }
 
-// RemoveAccount removes account from the list of account IDs.
+// RemoveAccount removes an account from the list of account IDs.
 func (ua *AccountsOfUser) RemoveAccount(userAccount AccountKey) (changed bool) {
 	count := len(ua.Accounts)
 	ua.Accounts = removeInPlace(userAccount.String(), ua.Accounts)
@@ -358,14 +371,4 @@ func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *Account
 		err = fmt.Errorf("only 1 account from same auth provider allowed per user and user linked %d '%v' accounts", count, provider)
 	}
 	return
-}
-
-// LastLogin is a struct that contains the last login time of a user.
-type LastLogin struct {
-	DtLastLogin time.Time `json:"dtLastLogin" dalgo:"dtLastLogin" datastore:"dtLastLogin"`
-}
-
-// SetLastLogin sets the last login time of a user.
-func (l *LastLogin) SetLastLogin(time time.Time) {
-	l.DtLastLogin = time
 }
