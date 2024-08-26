@@ -31,8 +31,15 @@ func TestAccountsOfUser_AddAccount(t *testing.T) {
 			}
 			verifyOutput(t, accounts, 0)
 		}()
+		if changed := accounts.AddAccount(AccountKey{Provider: "facebook", ID: "123456"}); !changed {
+			t.Error("Should return changed=True")
+		}
+	})
+	t.Run("do_not_panic_on_missing_app_for_telegram", func(t *testing.T) {
+		accounts := AccountsOfUser{}
 		if changed := accounts.AddAccount(AccountKey{Provider: "telegram", ID: "123456"}); !changed {
 			t.Error("Should return changed=True")
+			verifyOutput(t, accounts, 1)
 		}
 	})
 }
