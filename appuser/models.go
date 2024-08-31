@@ -213,7 +213,7 @@ func ParseUserAccount(s string) (ua AccountKey, err error) {
 }
 
 type AccountsOfUser struct {
-	Accounts []string `datastore:",noindex"`
+	Accounts []string `firestore:"accounts"`
 }
 
 func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (changed bool) {
@@ -341,12 +341,12 @@ func (ua *AccountsOfUser) GetAccounts(platform string) (userAccounts []AccountKe
 }
 
 // Deprecated: use GetAccount instead
-func (ua *AccountsOfUser) GetFbAccount(app string) (userAccount *AccountKey, err error) {
+func (ua *AccountsOfUser) GetFbAccount(_ string) (userAccount *AccountKey, err error) {
 	return nil, errors.New("GetFbAccount() is deprecated, use GetAccount() instead")
 }
 
 // Deprecated: use GetAccount instead
-func (ua *AccountsOfUser) GetFbmAccount(fbPageID string) (userAccount *AccountKey, err error) {
+func (ua *AccountsOfUser) GetFbmAccount(_ string) (userAccount *AccountKey, err error) {
 	return nil, errors.New("GetFbmAccount() is deprecated, use GetAccount() instead")
 }
 
