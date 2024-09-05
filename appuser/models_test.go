@@ -2,6 +2,7 @@ package appuser
 
 import (
 	"github.com/strongo/strongoapp/with"
+	"strings"
 	"testing"
 	"time"
 )
@@ -139,6 +140,90 @@ func TestNewEmailData(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := NewEmailData(tt.args.email); got != tt.want {
 				t.Errorf("NewEmailData() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAccountKey_IsEmpty(t *testing.T) {
+	tests := []struct {
+		name string
+		ua   AccountKey
+		want bool
+	}{
+		{
+			name: "empty",
+			ua:   AccountKey{},
+			want: true,
+		},
+		{
+			name: "app",
+			ua:   AccountKey{App: "test"},
+			want: false,
+		},
+		{
+			name: "provider",
+			ua:   AccountKey{Provider: "test"},
+			want: false,
+		},
+		{
+			name: "id",
+			ua:   AccountKey{ID: "test"},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.ua.IsEmpty(); got != tt.want {
+				t.Errorf("IsEmpty() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAccountKey_Validate(t *testing.T) {
+	tests := []struct {
+		name    string
+		ua      AccountKey
+		wantErr string
+	}{
+		{
+			name:    "no_app",
+			ua:      AccountKey{Provider: "p1", ID: "id1"},
+			wantErr: "",
+		},
+		{
+			name:    "full",
+			ua:      AccountKey{Provider: "p1", ID: "id1", App: "app1"},
+			wantErr: "",
+		},
+		{
+			name:    "empty",
+			ua:      AccountKey{},
+			wantErr: "empty struct",
+		},
+		{
+			name:    "provider",
+			ua:      AccountKey{ID: "id1"},
+			wantErr: "[provider]",
+		},
+		{
+			name:    "id",
+			ua:      AccountKey{Provider: "p1"},
+			wantErr: "[id]",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.ua.Validate()
+			if err == nil && tt.wantErr != "" {
+				t.Error("should return an error")
+			} else if err != nil {
+				if tt.wantErr == "" {
+					t.Errorf("should not return an error, got: %v", err)
+				} else if !strings.Contains(err.Error(), tt.wantErr) {
+					t.Errorf("error message mismatch: '%s' != '%s'", err, tt.wantErr)
+				}
 			}
 		})
 	}

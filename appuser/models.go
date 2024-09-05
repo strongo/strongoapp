@@ -6,6 +6,7 @@ import (
 	"github.com/dal-go/dalgo/dal"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
+	"github.com/strongo/validation"
 	"strconv"
 	"strings"
 	"time"
@@ -185,6 +186,32 @@ type AccountKey struct {
 	Provider string `json:"provider" dalgo:"provider" firestore:"dalgo"` // E.g. Email, Google, Facebook, etc.
 	App      string `json:"app" dalgo:"app" firestore:"app"`             // E.g. app ID, bot ID, etc.
 	ID       string `json:"id" dalgo:"id" firestore:"id"`                // An ID of a user at auth provider. E.g. email address, some ID, etc.
+}
+
+func (ua AccountKey) IsEmpty() bool {
+	return ua == AccountKey{}
+}
+
+func (ua AccountKey) Validate() error {
+	if ua.IsEmpty() {
+		return validation.NewValidationError("empty struct")
+	}
+	if ua.Provider == "" {
+		return validation.NewErrRecordIsMissingRequiredField("provider")
+	}
+	if ua.ID == "" {
+		return validation.NewErrRecordIsMissingRequiredField("id")
+	}
+	if strings.TrimSpace(ua.ID) != ua.ID {
+		return validation.NewErrBadRecordFieldValue("id", "must not have leading or trailing spaces")
+	}
+	if strings.TrimSpace(ua.Provider) != ua.Provider {
+		return validation.NewErrBadRecordFieldValue("provider", "must not have leading or trailing spaces")
+	}
+	if strings.TrimSpace(ua.App) != ua.App {
+		return validation.NewErrBadRecordFieldValue("app", "must not have leading or trailing spaces")
+	}
+	return nil
 }
 
 const AccountKeySeparator = ":"
