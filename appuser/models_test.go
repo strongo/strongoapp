@@ -17,8 +17,8 @@ func TestAccountsOfUser_AddAccount(t *testing.T) {
 
 	t.Run("email", func(t *testing.T) {
 		accounts := AccountsOfUser{}
-		if changed := accounts.AddAccount(AccountKey{Provider: "email", ID: "test@example.com"}); !changed {
-			t.Error("Shoud return changed=True")
+		if updates := accounts.AddAccount(AccountKey{Provider: "email", ID: "test@example.com"}); len(updates) == 0 {
+			t.Error("should not return any updates")
 		}
 		verifyOutput(t, accounts, 1)
 	})
@@ -31,14 +31,14 @@ func TestAccountsOfUser_AddAccount(t *testing.T) {
 			}
 			verifyOutput(t, accounts, 0)
 		}()
-		if changed := accounts.AddAccount(AccountKey{Provider: "facebook", ID: "123456"}); !changed {
-			t.Error("Should return changed=True")
+		if updates := accounts.AddAccount(AccountKey{Provider: "facebook", ID: "123456"}); len(updates) != 1 {
+			t.Errorf("should return 1 update, got %d", len(updates))
 		}
 	})
 	t.Run("do_not_panic_on_missing_app_for_telegram", func(t *testing.T) {
 		accounts := AccountsOfUser{}
-		if changed := accounts.AddAccount(AccountKey{Provider: "telegram", ID: "123456"}); !changed {
-			t.Error("Should return changed=True")
+		if updates := accounts.AddAccount(AccountKey{Provider: "telegram", ID: "123456"}); len(updates) != 1 {
+			t.Errorf("should return 1 update, got %d", len(updates))
 			verifyOutput(t, accounts, 1)
 		}
 	})

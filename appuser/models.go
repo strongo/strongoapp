@@ -187,12 +187,14 @@ type AccountKey struct {
 	ID       string `json:"id" dalgo:"id" firestore:"id"`                // An ID of a user at auth provider. E.g. email address, some ID, etc.
 }
 
+const AccountKeySeparator = ":"
+
 func (ua AccountKey) String() string {
-	return ua.Provider + ":" + ua.App + ":" + ua.ID
+	return ua.Provider + AccountKeySeparator + ua.App + AccountKeySeparator + ua.ID
 }
 
 func ParseUserAccount(s string) (ua AccountKey, err error) {
-	vals := strings.Split(s, ":")
+	vals := strings.Split(s, AccountKeySeparator)
 	switch len(vals) {
 	case 3:
 		ua = AccountKey{
@@ -207,7 +209,7 @@ func ParseUserAccount(s string) (ua AccountKey, err error) {
 			ID:       vals[1],
 		}
 	default:
-		err = fmt.Errorf("invalid AccountKey string, expected 1 or 2 ':' characters, got: %d", strings.Count(s, ":"))
+		err = fmt.Errorf("invalid AccountKey string, expected 1 or 2 '%s' characters, got: %d", AccountKeySeparator, strings.Count(s, AccountKeySeparator))
 	}
 	return
 }
@@ -216,14 +218,14 @@ type AccountsOfUser struct {
 	Accounts []string `firestore:"accounts"`
 }
 
-func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (changed bool) {
+func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []dal.Update) {
 	// TODO: if !IsKnownUserAccountProvider(userAccount.Provider) {
 	// 	panic("Unknown provider: " + userAccount.Provider)
 	// }
 	if userAccount.ID == "" || userAccount.ID == "0" {
-		panic(fmt.Sprintf("Invalid userAccount.ID: [%v], userAccount.String: %v", userAccount.ID, userAccount.String()))
-	} else if strings.Contains(userAccount.ID, ":") {
-		panic("ID should not contains the ':' character.")
+		panic(fmt.Sprintf("Invalid userAccount.ID: [%s], userAccount.String: [%s]", userAccount.ID, userAccount.String()))
+	} else if strings.Contains(userAccount.ID, AccountKeySeparator) {
+		panic(fmt.Sprintf("account ID should not contain the '%s' character.", AccountKeySeparator))
 	}
 
 	if userAccount.App == "" {
@@ -233,24 +235,28 @@ func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (changed bool) {
 		default:
 			panic(fmt.Sprintf("User account must have non-empty App field, got: %+v", userAccount))
 		}
-	} else if strings.Contains(userAccount.App, ":") {
-		panic("App name should not contains the ':' character.")
+	} else if strings.Contains(userAccount.App, AccountKeySeparator) {
+		panic(fmt.Sprintf("app name should not contains the '%s' character", AccountKeySeparator))
 	}
 
 	if userAccount.Provider == "" {
-		panic("User account must have non-empty Provider field")
-	} else if strings.Contains(userAccount.Provider, ":") {
-		panic("Provider should not contains the ':' character.")
+		panic("user account must have non-empty provider field")
+	} else if strings.Contains(userAccount.Provider, AccountKeySeparator) {
+		panic(fmt.Sprintf("provider should not contains the '%s' character.", AccountKeySeparator))
 	}
 
 	account := userAccount.String()
 	for _, a := range ua.Accounts {
 		if a == account {
-			return false
+			return
 		}
 	}
 	ua.Accounts = append(ua.Accounts, account)
-	return true
+	updates = []dal.Update{{
+		Field: "accounts",
+		Value: ua.Accounts,
+	}}
+	return
 }
 
 func (ua *AccountsOfUser) SetBotUserID(platform, botID, botUserID string) {
@@ -270,9 +276,9 @@ func (ua *AccountsOfUser) RemoveAccount(userAccount AccountKey) (changed bool) {
 
 func userAccountPrefix(provider, app string) string {
 	if app == "" {
-		return provider + ":"
+		return provider + AccountKeySeparator
 	} else {
-		return provider + ":" + app + ":"
+		return provider + AccountKeySeparator + app + AccountKeySeparator
 	}
 }
 
@@ -328,7 +334,7 @@ func (ua *AccountsOfUser) GetFbAccounts() (userAccounts []AccountKey, err error)
 
 func (ua *AccountsOfUser) GetAccounts(platform string) (userAccounts []AccountKey, err error) {
 	var userAccount AccountKey
-	prefix := platform + ":"
+	prefix := platform + AccountKeySeparator
 	for _, a := range ua.Accounts {
 		if strings.HasPrefix(a, prefix) {
 			if userAccount, err = ParseUserAccount(a); err != nil {
@@ -368,7 +374,7 @@ func (ua *AccountsOfUser) GetAccount(provider, app string) (userAccount *Account
 		}
 	}
 	if userAccount != nil && count > 1 {
-		err = fmt.Errorf("only 1 account from same auth provider allowed per user and user linked %d '%v' accounts", count, provider)
+		err = fmt.Errorf("only 1 account from same auth provider allowed per user and user has %d '%s' linked accounts", count, provider)
 	}
 	return
 }
