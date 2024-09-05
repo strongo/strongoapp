@@ -257,7 +257,7 @@ func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []dal.Upda
 
 	if userAccount.App == "" {
 		switch userAccount.Provider {
-		case "google", "email", "telegram": // TODO: abstract this to provider definition
+		case "google", "email", "password", "telegram": // TODO: abstract this to provider definition
 			// It's OK to have empty app for this providers
 		default:
 			panic(fmt.Sprintf("User account must have non-empty App field, got: %+v", userAccount))
