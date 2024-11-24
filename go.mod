@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/alexsergivan/transliterator v1.0.1
 	github.com/dal-go/dalgo v0.14.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.0
 	github.com/strongo/validation v0.0.7
