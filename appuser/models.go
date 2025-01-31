@@ -242,7 +242,7 @@ func ParseUserAccount(s string) (ua AccountKey, err error) {
 }
 
 type AccountsOfUser struct {
-	Accounts []string `firestore:"accounts"`
+	Accounts []string `json:"accounts" firestore:"accounts"`
 }
 
 func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []dal.Update) {
