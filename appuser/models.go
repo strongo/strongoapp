@@ -242,7 +242,7 @@ func ParseUserAccount(s string) (ua AccountKey, err error) {
 }
 
 type AccountsOfUser struct {
-	Accounts []string `json:"accounts" firestore:"accounts"`
+	Accounts []string `json:"accounts,omitempty" firestore:"accounts,omitempty"`
 }
 
 func (ua *AccountsOfUser) Validate() error {
