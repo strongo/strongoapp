@@ -245,6 +245,15 @@ type AccountsOfUser struct {
 	Accounts []string `json:"accounts" firestore:"accounts"`
 }
 
+func (ua *AccountsOfUser) Validate() error {
+	for i, a := range ua.Accounts {
+		if _, err := ParseUserAccount(a); err != nil {
+			return validation.NewErrBadRequestFieldValue(fmt.Sprintf("accounts[%d]", i), err.Error())
+		}
+	}
+	return nil
+}
+
 func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []dal.Update) {
 	// TODO: if !IsKnownUserAccountProvider(userAccount.Provider) {
 	// 	panic("Unknown provider: " + userAccount.Provider)

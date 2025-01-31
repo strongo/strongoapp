@@ -228,3 +228,46 @@ func TestAccountKey_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestAccountsOfUser_Validate(t *testing.T) {
+	type fields struct {
+		Accounts []string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			name:    "empty",
+			wantErr: false,
+			fields: fields{
+				Accounts: nil,
+			},
+		},
+		{
+			name:    "one_empty",
+			wantErr: true,
+			fields: fields{
+				Accounts: []string{""},
+			},
+		},
+		{
+			name:    "one_full",
+			wantErr: false,
+			fields: fields{
+				Accounts: []string{"telegram::123456"},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ua := &AccountsOfUser{
+				Accounts: tt.fields.Accounts,
+			}
+			if err := ua.Validate(); (err != nil) != tt.wantErr {
+				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
