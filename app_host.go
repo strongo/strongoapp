@@ -8,6 +8,8 @@ import (
 // HttpHandlerWithContext - TODO: document purpose
 type HttpHandlerWithContext func(c context.Context, w http.ResponseWriter, r *http.Request)
 
+type HandleHttpWithContext = func(method, path string, handler HttpHandlerWithContext)
+
 // HttpAppHost - TODO: document purpose
 type HttpAppHost interface {
 
