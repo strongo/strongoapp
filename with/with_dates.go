@@ -2,7 +2,7 @@ package with
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/validation"
 	"strings"
 )
@@ -14,14 +14,14 @@ type DatesFields struct {
 	DateMax string   `json:"dateMax,omitempty" dalgo:"dateMax,omitempty" firestore:"dateMax,omitempty"`
 }
 
-func (v *DatesFields) UpdatesWhenDatesChanged() []dal.Update {
-	updates := []dal.Update{
-		{Field: "dates", Value: v.Dates},
-		{Field: "dateMin", Value: v.DateMin},
-		{Field: "dateMax", Value: v.DateMax},
+func (v *DatesFields) UpdatesWhenDatesChanged() []update.Update {
+	updates := []update.Update{
+		update.ByFieldName("dates", v.Dates),
+		update.ByFieldName("dateMin", v.DateMin),
+		update.ByFieldName("dateMax", v.DateMax),
 	}
 	if len(v.Dates) == 0 {
-		updates[0].Value = dal.DeleteField
+		updates[0] = update.ByFieldName("dates", update.DeleteField)
 	}
 	return updates
 }

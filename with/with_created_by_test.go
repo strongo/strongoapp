@@ -2,7 +2,7 @@ package with
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,15 +14,15 @@ func TestCreatedBy_UpdatesCreatedBy(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   []dal.Update
+		want   []update.Update
 	}{
 		{
 			name: "ok",
 			fields: fields{
 				CreatedBy: "u1",
 			},
-			want: []dal.Update{
-				{Field: "createdBy", Value: "u1"},
+			want: []update.Update{
+				update.ByFieldName("createdBy", "u1"),
 			},
 		},
 	}

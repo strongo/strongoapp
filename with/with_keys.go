@@ -2,7 +2,7 @@ package with
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/validation"
 	"strings"
 )
@@ -27,13 +27,13 @@ func (v KeysField) Validate() error {
 	return nil
 }
 
-func (v KeysField) UpdatesWhenKeysChanged() []dal.Update {
+func (v KeysField) UpdatesWhenKeysChanged() []update.Update {
 	if len(v.Keys) == 0 {
-		return []dal.Update{
-			{Field: "keys", Value: dal.DeleteField},
+		return []update.Update{
+			update.ByFieldName("keys", update.DeleteField),
 		}
 	}
-	return []dal.Update{
-		{Field: "keys", Value: v.Keys},
+	return []update.Update{
+		update.ByFieldName("keys", v.Keys),
 	}
 }

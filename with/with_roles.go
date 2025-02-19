@@ -1,7 +1,7 @@
 package with
 
 import (
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/slice"
 	"slices"
 )
@@ -16,7 +16,7 @@ func (v *RolesField) HasRole(role string) bool {
 	return slices.Index(v.Roles, role) >= 0
 }
 
-func (v *RolesField) AddRole(role string) ( /* u dal.Update - does not make sense to return update as field unknown */ ok bool) {
+func (v *RolesField) AddRole(role string) ( /* u update.Update - does not make sense to return update as field unknown */ ok bool) {
 	if v.HasRole(role) {
 		return false
 	}
@@ -25,13 +25,13 @@ func (v *RolesField) AddRole(role string) ( /* u dal.Update - does not make sens
 }
 
 // RemoveRole removes a role from the list of roles, return true if the role was removed, false if the role was not found
-func (v *RolesField) RemoveRole(role string) (updates []dal.Update) {
+func (v *RolesField) RemoveRole(role string) (updates []update.Update) {
 	var removedCount int
 	v.Roles, removedCount = slice.RemoveInPlace(v.Roles, func(item string) bool {
 		return item == role
 	})
 	if removedCount > 0 {
-		updates = []dal.Update{{Field: "roles", Value: v.Roles}}
+		updates = []update.Update{update.ByFieldName("roles", v.Roles)}
 	}
 	return
 }

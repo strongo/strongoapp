@@ -2,7 +2,7 @@ package with
 
 import (
 	"errors"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -36,10 +36,10 @@ type UpdatedFields struct {
 }
 
 // UpdatesWhenUpdatedFieldsChanged populates update instructions for DALgo when UpdatedAt or UpdatedBy fields changed
-func (v *UpdatedFields) UpdatesWhenUpdatedFieldsChanged() []dal.Update {
-	return []dal.Update{
-		{Field: "updatedAt", Value: v.UpdatedAt},
-		{Field: "updatedBy", Value: v.UpdatedBy},
+func (v *UpdatedFields) UpdatesWhenUpdatedFieldsChanged() []update.Update {
+	return []update.Update{
+		update.ByFieldName("updatedAt", v.UpdatedAt),
+		update.ByFieldName("updatedBy", v.UpdatedBy),
 	}
 }
 

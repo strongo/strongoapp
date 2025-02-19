@@ -1,7 +1,7 @@
 package with
 
 import (
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/validation"
 	"time"
 )
@@ -29,9 +29,9 @@ func (v *CreatedAtField) SetCreatedAt(t time.Time) {
 	v.CreatedAt = t
 }
 
-func (v *CreatedAtField) UpdatesCreatedOn() []dal.Update {
-	return []dal.Update{
-		{Field: "createdOn", Value: v.CreatedAt},
+func (v *CreatedAtField) UpdatesCreatedOn() []update.Update {
+	return []update.Update{
+		update.ByFieldName("createdOn", v.CreatedAt),
 	}
 }
 

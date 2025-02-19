@@ -1,7 +1,7 @@
 package with
 
 import (
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/validation"
 	"strings"
 )
@@ -20,9 +20,9 @@ func (v *CreatedByField) GetCreatedBy() string {
 	return v.CreatedBy
 }
 
-func (v *CreatedByField) UpdatesCreatedBy() []dal.Update {
-	return []dal.Update{
-		{Field: "createdBy", Value: v.CreatedBy},
+func (v *CreatedByField) UpdatesCreatedBy() []update.Update {
+	return []update.Update{
+		update.ByFieldName("createdBy", v.CreatedBy),
 	}
 }
 

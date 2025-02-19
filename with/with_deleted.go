@@ -1,7 +1,7 @@
 package with
 
 import (
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -14,10 +14,10 @@ type DeletedFields struct {
 }
 
 // UpdatesWhenDeleted populates update instructions for DAL when a record has been deleted
-func (v *DeletedFields) UpdatesWhenDeleted() []dal.Update {
-	return []dal.Update{
-		{Field: "deletedAt", Value: v.DeletedAt},
-		{Field: "deletedBy", Value: v.DeletedBy},
+func (v *DeletedFields) UpdatesWhenDeleted() []update.Update {
+	return []update.Update{
+		update.ByFieldName("deletedAt", v.DeletedAt),
+		update.ByFieldName("deletedBy", v.DeletedBy),
 	}
 }
 

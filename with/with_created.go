@@ -2,7 +2,7 @@ package with
 
 import (
 	"errors"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/validation"
 	"strings"
 	"time"
@@ -56,7 +56,7 @@ type CreatedFields struct {
 }
 
 // UpdatesWhenCreated populates update instructions for DAL when a record has been created
-func (v *CreatedFields) UpdatesWhenCreated() []dal.Update {
+func (v *CreatedFields) UpdatesWhenCreated() []update.Update {
 	return append(v.CreatedAtField.UpdatesCreatedOn(), v.CreatedByField.UpdatesCreatedBy()...)
 }
 

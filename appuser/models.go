@@ -3,7 +3,7 @@ package appuser
 import (
 	"errors"
 	"fmt"
-	"github.com/dal-go/dalgo/dal"
+	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
@@ -171,7 +171,7 @@ type AccountData interface {
 	BelongsToUser
 	GetEmailLowerCase() string
 	GetEmailConfirmed() bool
-	SetLastLoginAt(time time.Time) dal.Update
+	SetLastLoginAt(time time.Time) update.Update
 	GetNames() person.NameFields
 }
 
@@ -254,7 +254,7 @@ func (ua *AccountsOfUser) Validate() error {
 	return nil
 }
 
-func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []dal.Update) {
+func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []update.Update) {
 	// TODO: if !IsKnownUserAccountProvider(userAccount.Provider) {
 	// 	panic("Unknown provider: " + userAccount.Provider)
 	// }
@@ -288,10 +288,7 @@ func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []dal.Upda
 		}
 	}
 	ua.Accounts = append(ua.Accounts, account)
-	updates = []dal.Update{{
-		Field: "accounts",
-		Value: ua.Accounts,
-	}}
+	updates = []update.Update{update.ByFieldName("accounts", ua.Accounts)}
 	return
 }
 
