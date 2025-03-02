@@ -7,6 +7,7 @@ import (
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -265,11 +266,9 @@ func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []update.U
 	}
 
 	if userAccount.App == "" {
-		switch userAccount.Provider {
-		case "google.com", "email", "password", "telegram": // TODO: abstract this to provider definition
-			// It's OK to have empty app for this providers
-		default:
-			panic(fmt.Sprintf("User account must have non-empty App field, got: %+v", userAccount))
+		if !slices.Contains(knownAuthProviders, userAccount.Provider) {
+			panic(fmt.Sprintf("User account must have non-empty and known auth provider, got: %+v, known=%+v",
+				userAccount, knownAuthProviders))
 		}
 	} else if strings.Contains(userAccount.App, AccountKeySeparator) {
 		panic(fmt.Sprintf("app name should not contains the '%s' character", AccountKeySeparator))
