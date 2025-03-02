@@ -1,7 +1,6 @@
 package appuser
 
 import (
-	"github.com/strongo/strongoapp/strongoauth"
 	"github.com/strongo/strongoapp/with"
 	"strings"
 	"testing"
@@ -11,17 +10,15 @@ import (
 func TestAccountsOfUser_AddAccount(t *testing.T) {
 	t.Parallel()
 
-	strongoauth.SetKnownAuthProviderIDs([]string{"email", "telegram", "firebase"})
-
 	verifyOutput := func(t *testing.T, accounts AccountsOfUser, count int) {
 		if len(accounts.Accounts) != count {
 			t.Errorf("len(accounts) != %d", count)
 		}
 	}
 
-	t.Run("email", func(t *testing.T) {
+	t.Run("emailLink", func(t *testing.T) {
 		accounts := AccountsOfUser{}
-		if updates := accounts.AddAccount(AccountKey{Provider: "email", ID: "test@example.com"}); len(updates) == 0 {
+		if updates := accounts.AddAccount(AccountKey{Provider: "emailLink", ID: "test@example.com"}); len(updates) == 0 {
 			t.Error("should not return any updates")
 		}
 		verifyOutput(t, accounts, 1)

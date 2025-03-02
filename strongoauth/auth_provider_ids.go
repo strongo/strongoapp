@@ -7,13 +7,24 @@ import (
 )
 
 func SetKnownAuthProviderIDs(v []string) {
-	if knownAuthProviderIDs != nil {
-		panic("knownAuthProviders already set")
-	}
 	knownAuthProviderIDs = v
 }
 
-var knownAuthProviderIDs []string
+var knownAuthProviderIDs = []string{
+	"password",      // Email/Password
+	"emailLink",     // Email Link (Passwordless)
+	"phone",         // Phone
+	"google.com",    // Google
+	"facebook.com",  // Facebook
+	"twitter.com",   // Twitter
+	"github.com",    // GitHub
+	"microsoft.com", // Microsoft
+	"apple.com",     // Apple
+	"yahoo.com",     // Yahoo
+	"telegram",      // Telegram
+	"custom",        // Custom Token
+	//"playgames.google.com", // Play Games Services (Android)
+}
 
 func ValidateAuthProviderID(v string) error {
 	if v == "" {
