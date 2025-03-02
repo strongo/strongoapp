@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/strongoapp/person"
+	"github.com/strongo/strongoapp/strongoauth"
 	"github.com/strongo/strongoapp/with"
 	"github.com/strongo/validation"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -266,9 +266,8 @@ func (ua *AccountsOfUser) AddAccount(userAccount AccountKey) (updates []update.U
 	}
 
 	if userAccount.App == "" {
-		if !slices.Contains(knownAuthProviders, userAccount.Provider) {
-			panic(fmt.Sprintf("User account must have non-empty and known auth provider, got: %+v, known=%+v",
-				userAccount, knownAuthProviders))
+		if err := strongoauth.ValidateAuthProviderID(userAccount.Provider); err != nil {
+			panic(fmt.Errorf("user account must have non-empty and known auth provider: %w", err))
 		}
 	} else if strings.Contains(userAccount.App, AccountKeySeparator) {
 		panic(fmt.Sprintf("app name should not contains the '%s' character", AccountKeySeparator))
