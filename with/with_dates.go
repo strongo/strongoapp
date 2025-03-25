@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dal-go/dalgo/update"
 	"github.com/strongo/validation"
+	"slices"
 	"strings"
 )
 
@@ -26,14 +27,23 @@ func (v *DatesFields) UpdatesWhenDatesChanged() []update.Update {
 	return updates
 }
 
-func (v *DatesFields) AddDate(date string) {
+func (v *DatesFields) AddDate(date string) (updates []update.Update) {
+	if slices.Contains(v.Dates, date) {
+		return
+	}
 	v.Dates = append(v.Dates, date)
+	updates = []update.Update{
+		update.ByFieldName("dates", v.Dates),
+	}
 	if v.DateMax == "" || date > v.DateMax {
 		v.DateMax = date
+		updates = append(updates, update.ByFieldName("dateMax", v.DateMax))
 	}
 	if v.DateMin == "" || date < v.DateMin {
 		v.DateMin = date
+		updates = append(updates, update.ByFieldName("dateMin", v.DateMin))
 	}
+	return
 }
 
 // Validate returns error if not valid
