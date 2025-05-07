@@ -122,7 +122,7 @@ func DeductNamesFromFullName(fullName string) (firstName, lastName string) {
 			break
 		}
 		const singleSpace = " "
-		fullName = strings.Replace(fullName, doubleSpace, singleSpace, -1)
+		fullName = strings.ReplaceAll(fullName, doubleSpace, singleSpace)
 	}
 
 	if names := strings.Split(fullName, " "); len(names) == 2 {

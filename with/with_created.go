@@ -57,7 +57,7 @@ type CreatedFields struct {
 
 // UpdatesWhenCreated populates update instructions for DAL when a record has been created
 func (v *CreatedFields) UpdatesWhenCreated() []update.Update {
-	return append(v.CreatedAtField.UpdatesCreatedOn(), v.CreatedByField.UpdatesCreatedBy()...)
+	return append(v.UpdatesCreatedOn(), v.UpdatesCreatedBy()...)
 }
 
 // Validate returns error if not valid
