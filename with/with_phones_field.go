@@ -6,24 +6,24 @@ import (
 	"strings"
 )
 
-const PhonesField = "phones"
+const PhonesFieldName = "phones"
 
-type Phones struct {
+type PhonesField struct {
 	Phones map[string]PhoneProps `json:"phones,omitempty" firestore:"phones,omitempty"`
 }
 
-func (v Phones) Validate() error {
+func (v PhonesField) Validate() error {
 	for k, p := range v.Phones {
 		if strings.TrimSpace(k) == "" {
-			return validation.NewErrBadRecordFieldValue(PhonesField, "phone key is empty")
+			return validation.NewErrBadRecordFieldValue(PhonesFieldName, "phone key is empty")
 		}
 		if trimmedKey := strings.TrimSpace(k); trimmedKey == "" {
-			return validation.NewErrBadRecordFieldValue(PhonesField+fmt.Sprintf("[%s]", k), "phone key is empty")
+			return validation.NewErrBadRecordFieldValue(PhonesFieldName+fmt.Sprintf("[%s]", k), "phone key is empty")
 		} else if k != trimmedKey {
-			return validation.NewErrBadRecordFieldValue(PhonesField+fmt.Sprintf("[%s]", k), "phone key has leading or trailing spaces")
+			return validation.NewErrBadRecordFieldValue(PhonesFieldName+fmt.Sprintf("[%s]", k), "phone key has leading or trailing spaces")
 		}
 		if err := p.Validate(); err != nil {
-			return validation.NewErrBadRecordFieldValue(PhonesField+fmt.Sprintf("[%s]", k), err.Error())
+			return validation.NewErrBadRecordFieldValue(PhonesFieldName+fmt.Sprintf("[%s]", k), err.Error())
 		}
 	}
 	return nil

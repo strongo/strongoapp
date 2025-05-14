@@ -8,30 +8,30 @@ import (
 	"strings"
 )
 
-const EmailsField = "emails"
+const EmailsFieldName = "emails"
 
-type Emails struct {
+type EmailsField struct {
 	Emails map[string]EmailProps `json:"emails,omitempty" firestore:"emails,omitempty"`
 }
 
-func (v *Emails) Validate() error {
+func (v *EmailsField) Validate() error {
 	var errs []error
 
 	hasPrimaryEmail := false
 	for k, p := range v.Emails {
 		if trimmed := strings.TrimSpace(k); trimmed == "" {
-			errs = append(errs, validation.NewErrBadRequestFieldValue(EmailsField, "email key is empty"))
+			errs = append(errs, validation.NewErrBadRequestFieldValue(EmailsFieldName, "email key is empty"))
 			continue
 		} else if k != trimmed {
-			errs = append(errs, validation.NewErrBadRecordFieldValue(EmailsField+fmt.Sprintf("[%s]", k), "email key has leading or trailing spaces"))
+			errs = append(errs, validation.NewErrBadRecordFieldValue(EmailsFieldName+fmt.Sprintf("[%s]", k), "email key has leading or trailing spaces"))
 			continue
 		}
 		if _, err := mail.ParseAddress(k); err != nil {
-			errs = append(errs, validation.NewErrBadRecordFieldValue(EmailsField+fmt.Sprintf("[%s]", k), "invalid email address: "+err.Error()))
+			errs = append(errs, validation.NewErrBadRecordFieldValue(EmailsFieldName+fmt.Sprintf("[%s]", k), "invalid email address: "+err.Error()))
 			continue
 		}
 		if err := p.Validate(); err != nil {
-			errs = append(errs, validation.NewErrBadRecordFieldValue(EmailsField+fmt.Sprintf("[%s]", k), "invalid properties: "+err.Error()))
+			errs = append(errs, validation.NewErrBadRecordFieldValue(EmailsFieldName+fmt.Sprintf("[%s]", k), "invalid properties: "+err.Error()))
 			continue
 		}
 		if p.OriginalEmail == k {
@@ -39,7 +39,7 @@ func (v *Emails) Validate() error {
 		}
 		if p.Type == EmailTypePrimary {
 			if hasPrimaryEmail {
-				errs = append(errs, validation.NewErrBadRecordFieldValue(EmailsField, "multiple primary emails"))
+				errs = append(errs, validation.NewErrBadRecordFieldValue(EmailsFieldName, "multiple primary emails"))
 			} else {
 				hasPrimaryEmail = true
 			}
