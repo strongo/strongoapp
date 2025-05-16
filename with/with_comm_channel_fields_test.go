@@ -126,13 +126,18 @@ func TestCommChannelFields_GetCommChannels(t *testing.T) {
 				PhonesField: tt.fields.PhonesField,
 			}
 			var expected map[string]*CommunicationChannelProps
+			var expectedFieldName string
 			switch tt.args.t {
 			case CommChannelTypeEmail:
 				expected = tt.fields.EmailsField.Emails
+				expectedFieldName = EmailsFieldName
 			case CommChannelTypePhone:
 				expected = tt.fields.PhonesField.Phones
+				expectedFieldName = PhonesFieldName
 			}
-			assert.Equalf(t, expected, v.GetCommChannels(tt.args.t), "GetCommChannels(%v)", tt.args.t)
+			channels, channelsFieldName := v.GetCommChannels(tt.args.t)
+			assert.Equalf(t, expected, channels, "GetCommChannels(%v)", tt.args.t)
+			assert.Equal(t, expectedFieldName, channelsFieldName, "GetCommChannels(%v)", tt.args.t)
 		})
 	}
 }

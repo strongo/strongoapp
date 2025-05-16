@@ -22,19 +22,19 @@ func (v *CommChannelFields) Validate() error {
 	return nil
 }
 
-func (v *CommChannelFields) GetCommChannels(t CommChannelType) map[string]*CommunicationChannelProps {
+func (v *CommChannelFields) GetCommChannels(t CommChannelType) (channels map[string]*CommunicationChannelProps, channelsFieldName string) {
 	switch t {
 	case CommChannelTypeEmail:
 		if v.Emails == nil {
 			v.Emails = make(map[string]*CommunicationChannelProps)
 		}
-		return v.Emails
+		return v.Emails, EmailsFieldName
 	case CommChannelTypePhone:
 		if v.Phones == nil {
 			v.Phones = make(map[string]*CommunicationChannelProps)
 		}
-		return v.Phones
+		return v.Phones, PhonesFieldName
 	default:
-		return nil
+		return nil, ""
 	}
 }
