@@ -2,7 +2,7 @@ module github.com/strongo/strongoapp
 
 go 1.23
 
-toolchain go1.25.0
+toolchain go1.25.1
 
 require (
 	github.com/alexsergivan/transliterator v1.0.1
