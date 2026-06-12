@@ -1,6 +1,6 @@
-# Code graph of strongo/app
+# Code graph of strongo/strongoapp
 
-Indexed by [codegrapher](https://codegrapher.dev) · [Browse online](https://codegrapher.dev/github.com/strongo/app)
+Indexed by [codegrapher](https://codegrapher.dev) · [Browse online](https://codegrapher.dev/github.com/strongo/strongoapp)
 
 ## Contents
 
