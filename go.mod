@@ -6,7 +6,7 @@ toolchain go1.26.4
 
 require (
 	github.com/alexsergivan/transliterator v1.0.1
-	github.com/dal-go/dalgo v0.58.1
+	github.com/dal-go/dalgo v0.62.2
 	github.com/stretchr/testify v1.11.1
 	github.com/strongo/random v0.0.1
 	github.com/strongo/slice v0.3.4
