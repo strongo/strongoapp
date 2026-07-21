@@ -2,7 +2,7 @@ package with
 
 import (
 	"fmt"
-	"github.com/dal-go/dalgo/update"
+	"github.com/dal-go/record/update"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
