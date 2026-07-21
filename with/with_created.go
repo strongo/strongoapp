@@ -2,7 +2,7 @@ package with
 
 import (
 	"errors"
-	"github.com/dal-go/dalgo/update"
+	"github.com/dal-go/record/update"
 	"github.com/strongo/validation"
 	"strings"
 	"time"

@@ -3,7 +3,7 @@ package appuser
 import (
 	"errors"
 	"fmt"
-	"github.com/dal-go/dalgo/update"
+	"github.com/dal-go/record/update"
 	"github.com/strongo/strongoapp/person"
 	"github.com/strongo/strongoapp/strongoauth"
 	"github.com/strongo/strongoapp/with"
