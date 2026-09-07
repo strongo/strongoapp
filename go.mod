@@ -7,7 +7,7 @@ toolchain go1.27.1
 require (
 	github.com/alexsergivan/transliterator v1.0.1
 	github.com/stretchr/testify v1.12.1
-	github.com/strongo/random v0.0.1
+	github.com/strongo/random v0.0.2
 	github.com/strongo/slice v0.3.10
 	github.com/strongo/validation v0.0.13
 )
