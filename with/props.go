@@ -12,9 +12,6 @@ const CommunicationChannelTypeWork = "work"
 func validateCommunicationChannelsField(name string, value map[string]*CommunicationChannelProps, extraValidation func(k string, v *CommunicationChannelProps) error) error {
 	hasPrimary := false
 	for k, p := range value {
-		if strings.TrimSpace(k) == "" {
-			return validation.NewErrBadRecordFieldValue(name, "phone key is empty")
-		}
 		if trimmedKey := strings.TrimSpace(k); trimmedKey == "" {
 			return validation.NewErrBadRecordFieldValue(name+fmt.Sprintf("[%s]", k), "key is empty")
 		} else if k != trimmedKey {

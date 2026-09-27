@@ -32,7 +32,7 @@ func GenerateIDFromNameOrRandom(name *NameFields, existingIDs []string) (id stri
 	trans := transliterator.NewTransliterator(nil)
 	//
 	if nick := CleanForID(trans.Transliterate(name.NickName, "")); nick != "" {
-		if !slices.Contains(existingIDs, id) {
+		if !slices.Contains(existingIDs, nick) {
 			return nick, nil
 		}
 	}
@@ -41,72 +41,70 @@ func GenerateIDFromNameOrRandom(name *NameFields, existingIDs []string) (id stri
 	last := CleanForID(trans.Transliterate(name.LastName, ""))
 	middle := CleanForID(trans.Transliterate(name.MiddleName, ""))
 
-	if first == "" || last == "" || middle == "" {
-		if first == "" && last == "" && middle == "" {
-			if name.FullName != "" {
-				if names := strings.Split(name.FullName, " "); len(names) > 0 {
-					for _, n := range names {
-						n = CleanForID(trans.Transliterate(n, ""))
-						if len(n) > 0 {
-							id += n[0:1]
-						}
+	if first == "" && last == "" && middle == "" {
+		if name.FullName != "" {
+			if names := strings.Split(name.FullName, " "); len(names) > 0 {
+				for _, n := range names {
+					n = CleanForID(trans.Transliterate(n, ""))
+					if len(n) > 0 {
+						id += n[0:1]
 					}
-					if len(id) > 0 && !slices.Contains(existingIDs, id) {
-						return id, nil
-					}
-					if len(names) == 2 {
-						first = names[0]
-						last = names[1]
-					}
+				}
+				if len(id) > 0 && !slices.Contains(existingIDs, id) {
+					return id, nil
+				}
+				if len(names) == 2 {
+					first = CleanForID(trans.Transliterate(names[0], ""))
+					last = CleanForID(trans.Transliterate(names[1], ""))
 				}
 			}
 		}
+	}
 
-		if first != "" && last != "" {
-			// Try to use 1st chars of first & last names
-			if id = first[0:1] + last[0:1]; !slices.Contains(existingIDs, id) {
-				return id, nil
-			}
+	if first != "" && last != "" {
+		// Try to use 1st chars of first & last names
+		if id = first[0:1] + last[0:1]; !slices.Contains(existingIDs, id) {
+			return id, nil
 		}
-		if first != "" && middle != "" && last != "" {
-			// Try to user 1st chars of all first, middle, last names
-			if id = first[0:1] + middle[0:1] + last[0:1]; !slices.Contains(existingIDs, id) {
-				return id, nil
-			}
+	}
+	if first != "" && middle != "" && last != "" {
+		// Try to user 1st chars of all first, middle, last names
+		if id = first[0:1] + middle[0:1] + last[0:1]; !slices.Contains(existingIDs, id) {
+			return id, nil
+		}
 
-			// Try to user 1st chars of all first, last names, middle names
-			if id = first[0:1] + last[0:1] + middle[0:1]; !slices.Contains(existingIDs, id) {
-				return id, nil
-			}
+		// Try to user 1st chars of all first, last names, middle names
+		if id = first[0:1] + last[0:1] + middle[0:1]; !slices.Contains(existingIDs, id) {
+			return id, nil
 		}
+	}
+	// Try to use 1st char of first name
+	if first != "" {
+
 		// Try to use 1st char of first name
-		if first != "" {
-
-			// Try to use 1st char of first name
-			if id = first[0:1]; !slices.Contains(existingIDs, id) {
-				return id, nil
-			}
-
-			// Try to use 1st and last char of first name
-			if id = first[0:1] + first[len(first)-1:]; slices.Contains(existingIDs, id) {
-				return id, nil
-			}
-
-			// Try to use the whole first name
-			if id = first; !slices.Contains(existingIDs, id) {
-				return id, nil
-			}
+		if id = first[0:1]; !slices.Contains(existingIDs, id) {
+			return id, nil
 		}
-		if first != "" && last != "" {
-			// Try to use full first name and 1st char of last name
-			if id = first + last[0:1]; slices.Contains(existingIDs, id) {
-				return id, nil
-			}
+
+		// Try to use 1st and last char of first name
+		if id = first[0:1] + first[len(first)-1:]; !slices.Contains(existingIDs, id) {
+			return id, nil
 		}
-		if last != "" {
-			if id = last; slices.Contains(existingIDs, id) {
-				return id, nil
-			}
+
+		// Try to use the whole first name
+		if id = first; !slices.Contains(existingIDs, id) {
+			return id, nil
+		}
+	}
+	if first != "" && last != "" {
+		// Try to use full first name and 1st char of last name
+		if id = first + last[0:1]; !slices.Contains(existingIDs, id) {
+			return id, nil
+		}
+	}
+	if last != "" {
+		if id = last; !slices.Contains(existingIDs, id) {
+			return id, nil
 		}
 	}
 

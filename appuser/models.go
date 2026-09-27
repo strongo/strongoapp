@@ -163,8 +163,7 @@ func (v *AccountDataBase) Validate() error {
 }
 
 func (v *AccountDataBase) GetNames() person.NameFields {
-	//TODO implement me
-	panic("implement me")
+	return v.NameFields
 }
 
 // AccountData stores info about a user account with auth provider

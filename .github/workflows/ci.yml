@@ -12,7 +12,21 @@ on:
 
 jobs:
 
+  coverage:
+    name: 100% Statement Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      - name: Verify 100% Statement Coverage
+        run: |
+          go test -count=1 -coverprofile=cover.out ./...
+          awk 'NR>1 && $NF==0 {print; bad=1} END{exit bad}' cover.out
+
   strongo_workflow:
+    needs: coverage
     permissions:
       contents: write
     uses: strongo/cicd/.github/workflows/workflow.yml@main
