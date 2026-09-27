@@ -7,8 +7,10 @@ import (
 	"testing"
 )
 
+type testContextKey struct{}
+
 func TestExecutionContext(t *testing.T) {
-	ctx := context.WithValue(context.Background(), struct{}{}, "val")
+	ctx := context.WithValue(context.Background(), testContextKey{}, "val")
 	ec := NewExecutionContext(ctx)
 	if ec.Context() != ctx {
 		t.Errorf("expected %v, got %v", ctx, ec.Context())
