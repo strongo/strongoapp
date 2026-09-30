@@ -127,7 +127,7 @@ func TestAccountDataBase_Coverage(t *testing.T) {
 
 	// OwnedByUserWithID error
 	bad1 := adb
-	bad1.OwnedByUserWithID.AppUserID = ""
+	bad1.AppUserID = ""
 	if err := bad1.Validate(); err == nil {
 		t.Fatal("expected error on missing AppUserID")
 	}
