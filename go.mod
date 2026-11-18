@@ -9,7 +9,7 @@ require (
 	github.com/stretchr/testify v1.12.1
 	github.com/strongo/random v0.0.3
 	github.com/strongo/slice v0.3.15
-	github.com/strongo/validation v0.0.17
+	github.com/strongo/validation v0.0.18
 )
 
 require go.yaml.in/yaml/v3 v3.0.5 // indirect
